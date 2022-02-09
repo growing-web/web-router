@@ -1,0 +1,57 @@
+{
+  "name": "@growing-web/web-router",
+  "version": "0.0.1",
+  "description": "web router",
+  "source": "src/index.js",
+  "main": "dist/cjs/web-router.js",
+  "module": "dist/esm/web-router.js",
+  "system": "dist/system/web-router.js",
+  "exports": {
+    "require": "./dist/cjs/web-router.js",
+    "import": "./dist/esm/web-router.js"
+  },
+  "scripts": {
+    "build": "rm -rf dist && node scripts/builder/bin/builder.js",
+    "build:watch": "node scripts/builder/bin/builder.js --watch",
+    "examples": "cd examples && web-dev-server --node-resolve --watch"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/growing-web/web-router.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "aui",
+  "bugs": {
+    "url": "https://github.com/growing-web/web-router/issues"
+  },
+  "homepage": "https://github.com/growing-web/web-router#readme",
+  "devDependencies": {
+    "@web/test-runner": "^0.13.20",
+    "@web/dev-server-hmr": "^0.1.9",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "rollup": "^2.50.5",
+    "rollup-plugin-includepaths": "^0.2.4",
+    "rollup-plugin-terser": "^7.0.2",
+    "@rollup/plugin-replace": "^3.0.0",
+    "@web-widget/container": "^0.0.21",
+    "@web/dev-server": "^0.1.17",
+    "@web/dev-server-rollup": "^0.3.11",
+    "@babel/eslint-parser": "^7.16.0",
+    "babel-loader": "^8.2.3",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.4.1"
+  },
+  "dependencies": {
+    "history": "^5.2.0"
+  }
+}

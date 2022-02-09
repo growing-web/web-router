@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" main="IE=edge">
+  <title>WebWidgetRouter demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="importmap">
+    {
+      "imports": {
+        "vue": "https://cdn.jsdelivr.net/npm/@org/vue@3.2.22/dist/system/vue.runtime.browser.prod.js",
+        "@examples/nav": "/nav.widget.js",
+        "@examples/home": "/index.widget.js",
+        "@examples/news": "/news.widget.js",
+        "@examples/about": "/news.widget.js",
+        "@examples/vue-router": "/vue-router.widget.js",
+        "@examples/404": "/404.widget.js"
+      }
+    }
+  </script>
+
+  <!-- pre-fetching data -->
+  <script type="application/pfd+json">
+    {
+      "id": "@1024",
+      "username": "web widget"
+    }
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <web-widget import="@examples/nav"></web-widget>
+  <web-router>
+    <web-route path="/" element="main">
+      <web-route index title="首页" element="web-widget" import="@examples/home"></web-route>
+      <web-route path="news" element="web-widget" import="@examples/news"></web-route>
+      <web-route path="about" element="web-widget" title="关于" import="@examples/about" data-id="xxxx"></web-route>
+      <web-route path="vue-router*" element="web-widget" import="@examples/vue-router"></web-route>
+      <web-route path="test" element="test-element"></web-route>
+      <web-route path="*" element="web-widget" import="@examples/404"></web-route>
+    </web-route>
+  </web-router>
+
+  <script type="module">
+    import { HTMLWebWidgetElement, WebWidgetDependencies } from '@web-widget/container';
+    import { HTMLWebRouterElement } from '../src/index.js';
+
+    function defineHook(target, name, callback) {
+      return Reflect.defineProperty(
+        target,
+        name,
+        callback(Reflect.getOwnPropertyDescriptor(target, name))
+      );
+    }
+
+    defineHook(HTMLWebWidgetElement.prototype, 'createDependencies', ({ value }) => ({
+      value() {
+        const dependencies = value.apply(this, arguments);
+        defineHook(dependencies, 'router', () => ({
+          get: () => this.router
+        }));
+        defineHook(dependencies, 'route', () => ({
+          get: () => this.route
+        }));
+        return dependencies;
+      }
+    }));
+
+    defineHook(WebWidgetDependencies.prototype, 'data', ({ get }) => {
+      const isRouterApp = widget => [...document.querySelectorAll('web-router')]
+        .some(router => router.contains(widget));
+      const getRootAppData = () => {
+        const element = document.querySelector('script[type="application/pfd+json"]')
+        if (element) {
+          try {
+            return JSON.parse(element.textContent);
+          } catch (error) { }
+        }
+        return null;
+      };
+      return {
+        get() {
+          const data = get.apply(this, arguments);
+          if (isRouterApp(this.ownerElement)) {
+            const rootAppData = getRootAppData();
+            return { ...rootAppData, ...data };
+          }
+          return data;
+        }
+      }
+    });
+
+    window.addEventListener('navigationwillchange', (event) => {
+      console.log('oldPathname', event.oldPathname, 'newPathname', event.newPathname);
+    });
+  </script>
+</body>
+
+</html>
