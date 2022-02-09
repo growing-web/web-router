@@ -14,7 +14,7 @@
     "build": "rm -rf dist && node scripts/builder/bin/builder.js",
     "build:watch": "node scripts/builder/bin/builder.js --watch",
     "examples": "cd examples && web-dev-server --node-resolve --watch",
-    "test": "No test"
+    "test": "echo No test"
   },
   "publishConfig": {
     "access": "public"
