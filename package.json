@@ -1,6 +1,6 @@
 {
   "name": "@growing-web/web-router",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "web router",
   "source": "src/index.js",
   "main": "dist/cjs/web-router.js",
