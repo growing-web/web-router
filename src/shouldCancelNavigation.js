@@ -6,10 +6,6 @@ let oldPathname = history.location.pathname;
 export function shouldCancelNavigation(to, { state } = {}) {
   const newPathname = to;
 
-  if (newPathname === oldPathname) {
-    return false;
-  }
-
   const eventInit = {
     cancelable: true,
     oldPathname,
