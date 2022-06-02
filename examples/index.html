@@ -9,7 +9,8 @@
   <script type="importmap">
     {
       "imports": {
-        "vue": "https://cdn.jsdelivr.net/npm/@org/vue@3.2.22/dist/system/vue.runtime.browser.prod.js",
+        "vue": "https://cdn.jsdelivr.net/npm/vue@3.2.22/dist/system/vue.runtime.browser.prod.js",
+        "@web-widget/container": "https://cdn.jsdelivr.net/npm/@web-widget/container@0.0.26/dist/esm/main.js",
         "@examples/nav": "/nav.widget.js",
         "@examples/home": "/index.widget.js",
         "@examples/news": "/news.widget.js",
@@ -25,6 +26,26 @@
     {
       "id": "@1024",
       "username": "web widget"
+    }
+  </script>
+
+  <script>
+    if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
+      document.head.appendChild(Object.assign(document.createElement('script'), {
+        src: 'https://ga.jspm.io/npm:es-module-shims@0.12.8/dist/es-module-shims.min.js',
+        crossorigin: 'anonymous'
+      }));
+    }
+    if (window.customElements) {
+      customElements.define('test-builtin', class extends HTMLAnchorElement {}, { extends: 'a'});
+
+      // Safari
+      if (document.createElement('a', { is: 'test-builtin' }).constructor === HTMLAnchorElement) {
+        document.head.appendChild(Object.assign(document.createElement('script'), {
+          src: 'https://cdn.jsdelivr.net/gh/growing-web/custom-elements-builtin@fix-observe-the-shadow-dom-changes/es.js',
+          crossorigin: 'anonymous'
+        }));
+      } 
     }
   </script>
 
@@ -50,7 +71,7 @@
   </web-router>
 
   <script type="module">
-    import { HTMLWebWidgetElement, WebWidgetDependencies } from '@web-widget/container';
+    import { HTMLWebWidgetElement, WebWidgetDependencies } from 'https://ga.jspm.io/npm:@web-widget/container@0.0.26/dist/esm/main.js';
     import { HTMLWebRouterElement } from '../src/index.js';
 
     function defineHook(target, name, callback) {
