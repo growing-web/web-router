@@ -11,12 +11,12 @@
       "imports": {
         "vue": "https://cdn.jsdelivr.net/npm/vue@3.2.22/dist/system/vue.runtime.browser.prod.js",
         "@web-widget/container": "https://cdn.jsdelivr.net/npm/@web-widget/container@0.0.26/dist/esm/main.js",
-        "@examples/nav": "/nav.widget.js",
-        "@examples/home": "/index.widget.js",
-        "@examples/news": "/news.widget.js",
-        "@examples/about": "/news.widget.js",
-        "@examples/vue-router": "/vue-router.widget.js",
-        "@examples/404": "/404.widget.js"
+        "@examples/nav": "/examples/nav.widget.js",
+        "@examples/home": "/examples/index.widget.js",
+        "@examples/news": "/examples/news.widget.js",
+        "@examples/about": "/examples/news.widget.js",
+        "@examples/vue-router": "/examples/vue-router.widget.js",
+        "@examples/404": "/examples/404.widget.js"
       }
     }
   </script>
@@ -29,25 +29,6 @@
     }
   </script>
 
-  <script>
-    if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
-      document.head.appendChild(Object.assign(document.createElement('script'), {
-        src: 'https://ga.jspm.io/npm:es-module-shims@0.12.8/dist/es-module-shims.min.js',
-        crossorigin: 'anonymous'
-      }));
-    }
-    if (window.customElements) {
-      customElements.define('test-builtin', class extends HTMLAnchorElement {}, { extends: 'a'});
-
-      // Safari
-      if (document.createElement('a', { is: 'test-builtin' }).constructor === HTMLAnchorElement) {
-        document.head.appendChild(Object.assign(document.createElement('script'), {
-          src: 'https://cdn.jsdelivr.net/gh/growing-web/custom-elements-builtin@fix-observe-the-shadow-dom-changes/es.js',
-          crossorigin: 'anonymous'
-        }));
-      } 
-    }
-  </script>
 
   <style>
     body {
@@ -70,9 +51,33 @@
     </web-route>
   </web-router>
 
+
+
+  <script>
+    if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
+      document.head.appendChild(Object.assign(document.createElement('script'), {
+        src: 'https://ga.jspm.io/npm:es-module-shims@0.12.8/dist/es-module-shims.min.js',
+        crossorigin: 'anonymous',
+        async: true
+      }));
+    }
+    // if (window.customElements) {
+    //   customElements.define('test-builtin', class extends HTMLAnchorElement {}, { extends: 'a'});
+
+    //   // Safari
+    //   if (document.createElement('a', { is: 'test-builtin' }).constructor === HTMLAnchorElement) {
+    //     document.head.appendChild(Object.assign(document.createElement('script'), {
+    //       src: '//unpkg.com/@ungap/custom-elements/es.js',
+    //       crossorigin: 'anonymous',
+    //       async: true
+    //     }));
+    //   } 
+    // }
+  </script>
   <script type="module">
-    import { HTMLWebWidgetElement, WebWidgetDependencies } from 'https://ga.jspm.io/npm:@web-widget/container@0.0.26/dist/esm/main.js';
-    import { HTMLWebRouterElement } from '../src/index.js';
+    import 'https://cdn.jsdelivr.net/npm/@ungap/custom-elements@1.1.0/es.js'; // safari
+    import { HTMLWebWidgetElement, WebWidgetDependencies } from '@web-widget/container';
+    import { HTMLWebRouterElement } from './dist/esm/web-router.js';
 
     function defineHook(target, name, callback) {
       return Reflect.defineProperty(

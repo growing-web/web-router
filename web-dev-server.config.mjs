@@ -6,7 +6,7 @@ const replace = fromRollup(rollupReplace);
 const index = process.env.INDEX || 'index.html';
 
 export default {
-  nodeResolve: true,
+  nodeResolve: false,
   appIndex: index,
   watch: true,
   rootDir: './',
