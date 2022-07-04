@@ -12,10 +12,8 @@ export default () => {
       `;
 
       // bootstrap vue app
-      await import('https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js');
-      await import(
-        'https://cdn.jsdelivr.net/npm/vue-router@3.5.2/dist/vue-router.js'
-      );
+      await import('vue');
+      await import('vue-router');
       Vue = window.Vue;
       VueRouter = window.VueRouter;
     },

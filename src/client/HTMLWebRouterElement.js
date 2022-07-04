@@ -1,7 +1,8 @@
 /* eslint-disable no-restricted-globals, class-methods-use-this */
-/* global window, document, customElements, HTMLElement */
+/* global window, document, customElements, HTMLElement, setTimeout */
 import { history } from './history.js';
-import { matchRoutes, makeTrashable, reasonableTime } from './utils.js';
+import { matchRoutes } from '../isomorphic/matchRoutes.js';
+import { renderToElements } from '../isomorphic/renderElements.js';
 import { NavigationChangeEvent } from './NavigationChangeEvent.js';
 
 const CHANGE = Symbol('change');
@@ -14,112 +15,83 @@ function dispatchNavigationChangeEvent(name, options) {
   return window.dispatchEvent(new NavigationChangeEvent(name, options));
 }
 
+// @see https://github.com/hjylewis/trashable
+function makeTrashable(promise) {
+  let trash = () => {};
+
+  const wrappedPromise = new Promise((resolve, reject) => {
+    trash = () => {
+      resolve = null;
+      reject = null;
+    };
+
+    promise.then(
+      val => {
+        if (resolve) resolve(val);
+      },
+      error => {
+        if (reject) reject(error);
+      }
+    );
+  });
+
+  wrappedPromise.trash = trash;
+  return wrappedPromise;
+}
+
+function reasonableTime(promise, timeout, ignore) {
+  return new Promise((resolve, reject) => {
+    promise.then(
+      () => resolve(promise),
+      error => reject(error)
+    );
+    setTimeout(
+      () => (ignore ? resolve() : reject(new Error('Timeout'))),
+      timeout
+    );
+  });
+}
+
 export class HTMLWebRouterElement extends HTMLElement {
   get outlet() {
     return this;
   }
 
-  /**
-   * Get all routes from the direct web-route child element.
-   * The document title can be updated by providing an
-   * title attribute to the web-route tag
-   */
-  get routes() {
+  get routemap() {
     if (this[ROUTES]) {
       return this[ROUTES];
     }
-    const getRoutes = context => {
-      const routes = [];
-      const ignore = ['path', 'element', 'index', 'title'];
-
-      for (const node of context.children) {
-        if (node.localName === 'web-route') {
-          routes.push({
-            path: node.path,
-            title: node.title,
-            element: node.element,
-            index: node.index,
-            children: getRoutes(node),
-            attributes: [...node.attributes].reduce(
-              (accumulator, { name, value }) => {
-                if (!ignore.includes(name)) {
-                  accumulator[name] = value;
-                }
-                return accumulator;
-              },
-              {}
-            )
-          });
-        }
-      }
-
-      return routes;
-    };
-
-    this[ROUTES] = getRoutes(this);
+    this[ROUTES] = JSON.parse(
+      document.querySelector(`script[type="routemap"]`).textContent
+    );
     return this[ROUTES];
   }
 
   connectedCallback() {
-    const change = (
+    const render = (
       update = {
         location: history.location,
         action: history.action
       }
     ) => this[CHANGE](update);
-    this[UN_HISTORY_LISTEN] = history.listen(change);
+    this[UN_HISTORY_LISTEN] = history.listen(render);
 
-    // TODO SSR
-    change();
+    // Server-Side Rendering
+    if (!this.hasAttribute('hydrateonly')) {
+      render();
+    }
   }
 
   disconnectedCallback() {
     this[UN_HISTORY_LISTEN]();
   }
 
-  createElement(matches) {
-    if (matches == null) return null;
-    return matches.reduceRight((outlet, match) => {
-      let element;
-      if (match.route.element) {
-        element = document.createElement(match.route.element, {
-          is: match.route.attributes.is
-        });
-
-        const routePath = ['routepattern', match.pathname];
-        const routeParams = Object.entries(match.params)
-          .filter(([name]) => name !== '*')
-          .map(([name, value]) => [`routeparam-${name}`, value]);
-        [
-          ...Object.entries(match.route.attributes),
-          routePath,
-          ...routeParams
-        ].forEach(([name, value]) => {
-          element.setAttribute(name, value);
-        });
-
-        element.router = {
-          history,
-          location: history.location
-        };
-        element.route = {
-          path: match.route.path,
-          params: match.params
-        };
-      } else {
-        element = document.createDocumentFragment();
-      }
-
-      if (outlet) {
-        element.appendChild(outlet);
-      }
-
-      return element;
-    }, null);
+  renderElements(matches) {
+    return renderToElements(matches, { document });
   }
 
   matchRoutes(to) {
-    return matchRoutes(this.routes, to);
+    return matchRoutes(this.routemap.routes, to);
   }
 
   async [CHANGE]({ location }) {
@@ -154,12 +126,10 @@ export class HTMLWebRouterElement extends HTMLElement {
     const inactiveElements = [
       ...this.outlet.querySelectorAll('[routepattern]')
     ].filter(
-      element =>
-        element.localName !== 'web-route' &&
-        !activePaths.includes(element.getAttribute('routepattern'))
+      element => !activePaths.includes(element.getAttribute('routepattern'))
     );
 
-    const element = this.createElement(matches);
+    const element = this.renderElements(matches);
     const flattenElements = [element, ...element.querySelectorAll('*')];
     const asyncElementFilter = element =>
       element.load && element.bootstrap && element.mount && element.unload;

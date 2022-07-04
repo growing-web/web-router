@@ -1,0 +1,27 @@
+{
+  "imports": {
+    "vue": "https://unpkg.com/vue@2.6.14/dist/vue.js",
+    "vue-router": "https://unpkg.com/vue-router@3.5.2/dist/vue-router.js",
+    "@web-widget/container": "https://unpkg.com/@web-widget/container@0.0.27/dist/esm/main.js",
+    "@ungap/custom-elements": "https://unpkg.com/@ungap/custom-elements@1.1.0/es.js",
+    "@growing-web/web-router": "http://localhost:8000/dist/esm/web-router.js",
+    "@examples/bootstrap": "http://localhost:8000/examples/bootstrap.js",
+    "@examples/nav": "http://localhost:8000/examples/nav.widget.js",
+    "@examples/home": "http://localhost:8000/examples/index.widget.js",
+    "@examples/news": "http://localhost:8000/examples/news.widget.js",
+    "@examples/about": "http://localhost:8000/examples/about.widget.js",
+    "@examples/vue-router": "http://localhost:8000/examples/vue-router.widget.js?v=34",
+    "@examples/404": "http://localhost:8000/examples/404.widget.js?v=32",
+
+    "@worker-tools/stream-response": "./node_modules/@worker-tools/stream-response/esm/index.js",
+    "whatwg-stream-to-async-iter": "./node_modules/whatwg-stream-to-async-iter/index.js",
+    "@growing-web/web-router": "./dist/esm/web-router.js",
+    "@worker-tools/html": "./node_modules/@worker-tools/html/esm/index.js",
+    "typed-array-utils": "./node_modules/typed-array-utils/esm/index.js",
+    "lodash-es/": "./node_modules/lodash-es/",
+    "lodash-es": "./node_modules/lodash-es/lodash.js",
+    "history/": "./node_modules/history/",
+    "history": "./node_modules/history/index.js"
+  },
+  "scopes": {}
+}

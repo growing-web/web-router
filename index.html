@@ -9,26 +9,20 @@
   <script type="importmap">
     {
       "imports": {
-        "vue": "https://cdn.jsdelivr.net/npm/vue@3.2.22/dist/system/vue.runtime.browser.prod.js",
-        "@web-widget/container": "https://cdn.jsdelivr.net/npm/@web-widget/container@0.0.26/dist/esm/main.js",
+        "vue": "https://unpkg.com/vue@3.2.22/dist/system/vue.runtime.browser.prod.js",
+        "@web-widget/container": "https://unpkg.com/@web-widget/container@0.0.27/dist/esm/main.js",
+        "@ungap/custom-elements": "https://unpkg.com/@ungap/custom-elements@1.1.0/es.js",
+        "@growing-web/web-router": "/dist/esm/web-router.js",
+        "@examples/bootstrap": "/examples/bootstrap.js",
         "@examples/nav": "/examples/nav.widget.js",
         "@examples/home": "/examples/index.widget.js",
         "@examples/news": "/examples/news.widget.js",
-        "@examples/about": "/examples/news.widget.js",
+        "@examples/about": "/examples/about.widget.js",
         "@examples/vue-router": "/examples/vue-router.widget.js",
         "@examples/404": "/examples/404.widget.js"
       }
     }
   </script>
-
-  <!-- pre-fetching data -->
-  <script type="application/pfd+json">
-    {
-      "id": "@1024",
-      "username": "web widget"
-    }
-  </script>
-
 
   <style>
     body {
@@ -40,30 +34,104 @@
 <body>
 
   <web-widget import="@examples/nav"></web-widget>
-  <web-router>
-    <web-route path="/" element="main">
-      <web-route index title="首页" element="web-widget" import="@examples/home"></web-route>
-      <web-route path="news" element="web-widget" import="@examples/news"></web-route>
-      <web-route path="about" element="web-widget" title="关于" import="@examples/about" data-id="xxxx"></web-route>
-      <web-route path="vue-router/*" element="web-widget" import="@examples/vue-router"></web-route>
-      <web-route path="test" element="test-element"></web-route>
-      <web-route path="*" element="web-widget" import="@examples/404"></web-route>
-    </web-route>
-  </web-router>
 
+  <web-router></web-router>
 
-
-  <script>
-    if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
-      document.head.appendChild(Object.assign(document.createElement('script'), {
-        src: 'https://ga.jspm.io/npm:es-module-shims@0.12.8/dist/es-module-shims.min.js',
-        crossorigin: 'anonymous',
-        async: true
-      }));
+  <!-- pre-fetching data -->
+  <script type="application/pfd+json">
+    {
+      "id": "@1024",
+      "username": "web widget"
     }
+  </script>
+
+  <script type="routemap">
+    {
+      "routes": [
+        {
+          "path": "/",
+          "element": "main",
+          "children": [
+            {
+              "title": "首页",
+              "element": "web-widget",
+              "index": true,
+              "attributes": {
+                "import": "@examples/home"
+              }
+            },
+            {
+              "path": "news",
+              "element": "web-widget",
+              "attributes": {
+                "import": "@examples/news"
+              }
+            },
+            {
+              "path": "about",
+              "title": "关于",
+              "element": "web-widget",
+              "attributes": {
+                "import": "@examples/about",
+                "data-id": "xxxx"
+              }
+            },
+            {
+              "path": "vue-router/*",
+              "element": "web-widget",
+              "attributes": {
+                "import": "@examples/vue-router"
+              }
+            },
+            {
+              "path": "test",
+              "element": "test-element",
+              "attributes": {}
+            },
+            {
+              "path": "*",
+              "element": "web-widget",
+              "attributes": {
+                "import": "@examples/404"
+              }
+            }
+          ],
+          "attributes": {}
+        }
+      ]
+    }
+  </script>
+
+  <script type="module">
+    // Polyfill: Declarative Shadow DOM
+    (function attachShadowRoots(root) {
+      root.querySelectorAll("template[shadowroot]").forEach(template => {
+        const mode = template.getAttribute("shadowroot");
+        const host = template.parentNode;
+        const shadowRoot = template.parentNode.attachShadow({ mode });
+        const attachInternals = host.attachInternals;
+        const attachShadow = host.attachShadow;
+
+        Object.assign(host, {
+          attachShadow() {
+            shadowRoot.innerHTML = '';
+            return shadowRoot;
+          },
+          attachInternals() {
+            const ei = attachInternals ? attachInternals.call(this, arguments) : {};
+            return Object.create(ei, { shadowRoot: { value: shadowRoot} });
+          }
+        });
+
+        shadowRoot.appendChild(template.content);
+        template.remove();
+        attachShadowRoots(shadowRoot);
+      });
+    })(document);
+
+    // Polyfill: Custom Elements
     // if (window.customElements) {
     //   customElements.define('test-builtin', class extends HTMLAnchorElement {}, { extends: 'a'});
-
     //   // Safari
     //   if (document.createElement('a', { is: 'test-builtin' }).constructor === HTMLAnchorElement) {
     //     document.head.appendChild(Object.assign(document.createElement('script'), {
@@ -73,60 +141,20 @@
     //     }));
     //   } 
     // }
-  </script>
-  <script type="module">
-    import 'https://cdn.jsdelivr.net/npm/@ungap/custom-elements@1.1.0/es.js'; // safari
-    import { HTMLWebWidgetElement, WebWidgetDependencies } from '@web-widget/container';
-    import { HTMLWebRouterElement } from './dist/esm/web-router.js';
 
-    function defineHook(target, name, callback) {
-      return Reflect.defineProperty(
-        target,
-        name,
-        callback(Reflect.getOwnPropertyDescriptor(target, name))
-      );
+    // Polyfill: Import Maps
+    if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
+      document.head.appendChild(Object.assign(document.createElement('script'), {
+        src: 'https://unpkg.com/es-module-shims@1.5.6/dist/es-module-shims.js',
+        crossorigin: 'anonymous',
+        async: true,
+        onload() {
+          importShim('@examples/bootstrap');
+        }
+      }));
+    } else {
+      import('@examples/bootstrap');
     }
-
-    defineHook(HTMLWebWidgetElement.prototype, 'createDependencies', ({ value }) => ({
-      value() {
-        const dependencies = value.apply(this, arguments);
-        defineHook(dependencies, 'router', () => ({
-          get: () => this.router
-        }));
-        defineHook(dependencies, 'route', () => ({
-          get: () => this.route
-        }));
-        return dependencies;
-      }
-    }));
-
-    defineHook(WebWidgetDependencies.prototype, 'data', ({ get }) => {
-      const isRouterApp = widget => [...document.querySelectorAll('web-router')]
-        .some(router => router.contains(widget));
-      const getRootAppData = () => {
-        const element = document.querySelector('script[type="application/pfd+json"]')
-        if (element) {
-          try {
-            return JSON.parse(element.textContent);
-          } catch (error) { }
-        }
-        return null;
-      };
-      return {
-        get() {
-          const data = get.apply(this, arguments);
-          if (isRouterApp(this.ownerElement)) {
-            const rootAppData = getRootAppData();
-            return { ...rootAppData, ...data };
-          }
-          return data;
-        }
-      }
-    });
-
-    window.addEventListener('navigationwillchange', (event) => {
-      console.log('oldPathname', event.oldPathname, 'newPathname', event.newPathname);
-    });
   </script>
 </body>
 

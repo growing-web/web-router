@@ -1,13 +1,15 @@
-window.$navigate = function (event) {
-  window.dispatchEvent(
-    new CustomEvent('webrouter:navigate', {
-      detail: { path: event.target.getAttribute('href') }
-    })
-  );
-  event.preventDefault();
-};
+if (typeof window !== 'undefined') {
+  window.$navigate = function (event) {
+    window.dispatchEvent(
+      new CustomEvent('webrouter:navigate', {
+        detail: { path: event.target.getAttribute('href') }
+      })
+    );
+    event.preventDefault();
+  };
+}
 
-export default () => {
+export default ({ parameters } = {}) => {
   let nav;
   console.log('nav load');
   return {

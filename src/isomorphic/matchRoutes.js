@@ -1,6 +1,4 @@
-/* global setTimeout, console */
-
-import { parsePath } from 'history';
+/* global console */
 
 function invariant(cond, message) {
   if (!cond) throw new Error(message);
@@ -23,41 +21,33 @@ function warning(cond, message) {
   }
 }
 
-// @see https://github.com/hjylewis/trashable
-export function makeTrashable(promise) {
-  let trash = () => {};
+/**
+ * Parses a string URL path into its separate pathname, search, and hash components.
+ *
+ * @see https://github.com/remix-run/history/tree/main/docs/api-reference.md#parsepath
+ */
+function parsePath(path) {
+  const parsedPath = {};
 
-  const wrappedPromise = new Promise((resolve, reject) => {
-    trash = () => {
-      resolve = null;
-      reject = null;
-    };
+  if (path) {
+    const hashIndex = path.indexOf('#');
+    if (hashIndex >= 0) {
+      parsedPath.hash = path.substr(hashIndex);
+      path = path.substr(0, hashIndex);
+    }
 
-    promise.then(
-      val => {
-        if (resolve) resolve(val);
-      },
-      error => {
-        if (reject) reject(error);
-      }
-    );
-  });
+    const searchIndex = path.indexOf('?');
+    if (searchIndex >= 0) {
+      parsedPath.search = path.substr(searchIndex);
+      path = path.substr(0, searchIndex);
+    }
 
-  wrappedPromise.trash = trash;
-  return wrappedPromise;
-}
+    if (path) {
+      parsedPath.pathname = path;
+    }
+  }
 
-export function reasonableTime(promise, timeout, ignore) {
-  return new Promise((resolve, reject) => {
-    promise.then(
-      () => resolve(promise),
-      error => reject(error)
-    );
-    setTimeout(
-      () => (ignore ? resolve() : reject(new Error('Timeout'))),
-      timeout
-    );
-  });
+  return parsedPath;
 }
 
 // @see https://github.com/remix-run/react-router/blob/main/packages/react-router/index.tsx#L1188
@@ -121,7 +111,7 @@ function safelyDecodeURIComponent(value, paramName) {
  *
  * @see https://reactrouter.com/docs/en/v6/api#matchpath
  */
-export function matchPath(pattern, pathname) {
+function matchPath(pattern, pathname) {
   if (typeof pattern === 'string') {
     pattern = { path: pattern, caseSensitive: false, end: true };
   }

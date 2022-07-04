@@ -2,10 +2,7 @@
   "extends": ["airbnb-base", "prettier"],
   "root": true,
   "env": {
-    "amd": false,
-    "browser": false,
-    "es6": true,
-    "node": false
+    "deno": true
   },
   "parser": "@babel/eslint-parser",
   "parserOptions": {
