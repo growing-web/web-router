@@ -1,12 +1,12 @@
 import { html, HTMLResponse, unsafeHTML } from '@worker-tools/html';
-import merge from 'lodash-es/merge.js';
+import defaultsDeep from 'lodash-es/defaultsDeep.js';
 import { create } from '../isomorphic/renderElements.js'; 
 import { matchRoutes} from '../isomorphic/matchRoutes.js';
 
 const escapeAttributeValue = value => value.replace(/"/g, '&quot;');
 
 async function transformElement(matches, transforms, request) {
-  const context = {}
+  const context = {};
   const element = await create(matches, async (element, attributes, children) => {
     if (element) {
       
@@ -16,7 +16,9 @@ async function transformElement(matches, transforms, request) {
           if (results) {
             let scope;
             [element, attributes, children, scope] = results;
-            merge(context, scope);
+            if (scope) {
+              defaultsDeep(context, scope);
+            }
             break;
           }
         }
@@ -36,6 +38,8 @@ async function transformElement(matches, transforms, request) {
   return [element, context];
 }
 
+export { html, unsafeHTML };
+
 export async function router({ routemap, request, layout, importmap, transforms }) {
   
   const { pathname } = new URL(request.url);
@@ -43,8 +47,6 @@ export async function router({ routemap, request, layout, importmap, transforms 
   const [outlet, context] = await transformElement(matches, transforms, { request });
 
   const content = layout ? layout({
-    html,
-    unsafeHTML,
     importmap: () => html`<script type="importmap">${unsafeHTML(JSON.stringify(importmap, null, 2))}</script>`,
     routemap: () => html`<script type="routemap">${unsafeHTML(JSON.stringify(routemap, null, 2))}</script>`,
     meta: () => {

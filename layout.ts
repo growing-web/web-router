@@ -1,4 +1,6 @@
-export default ({ importmap, routemap, meta, outlet, html }) => html`<!DOCTYPE html>
+import { html } from './src/server/router.ts';
+
+export default ({ importmap, routemap, meta, outlet }) => html`<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
