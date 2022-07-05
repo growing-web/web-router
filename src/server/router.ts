@@ -43,13 +43,16 @@ export async function router({ routemap, request, layout, importmap, transforms 
   const [outlet, context] = await transformElement(matches, transforms, { request });
 
   const content = layout ? layout({
-    routemap,
-    importmap,
-    meta: context.meta || {},
     html,
     unsafeHTML,
-    outlet
-  }) : outlet;
+    importmap: () => html`<script type="importmap">${unsafeHTML(JSON.stringify(importmap, null, 2))}</script>`,
+    routemap: () => html`<script type="routemap">${unsafeHTML(JSON.stringify(routemap, null, 2))}</script>`,
+    meta: () => {
+      const meta = context.meta || {};
+      return html`<title>${meta.title}</title>`
+    },
+    outlet: () => html`<web-router hydrateonly>${outlet}</web-router>`
+  }) : () => outlet;
   
   const response = new HTMLResponse(content, {
     status: context.status,

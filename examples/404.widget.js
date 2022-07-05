@@ -13,26 +13,7 @@ export async function data() {
 }
 
 export async function response({ data }) {
-  const stream = new ReadableStream({
-    start(controller) {
-      let index = 0;
-      const timer = setInterval(() => {
-        controller.enqueue(
-          new TextEncoder('utf-8').encode(`
-            <pre>data: ${JSON.stringify(data, null, 2)}</pre>
-            <pre>log: ${Date.now()}</pre>
-          `)
-        );
-        index++;
-        if (index > 10) {
-          controller.close();
-          clearInterval(timer);
-        }
-      }, 100);
-    }
-  });
-
-  return new Response(stream, {
+  return new Response('404: 页面没有找到', {
     status: 404,
     headers: { 'Content-Type': 'text/html' }
   });

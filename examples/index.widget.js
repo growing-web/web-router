@@ -1,22 +1,28 @@
-export default () => {
-  let main;
-  console.log('Home load');
+export async function data() {
   return {
-    async bootstrap({ data }) {
-      console.log('Home bootstrap');
-      main = document.createElement('main');
-      main.innerHTML = `
-        <h3>Home</h3>
-        <pre>${JSON.stringify(data, null, 2)}</pre>
-      `;
-    },
-    async mount({ container }) {
-      console.log('Home mount');
-      container.appendChild(main);
-    },
-    async unmount({ container }) {
-      console.log('Home unmount');
-      container.removeChild(main);
-    }
-  };
-};
+    user: 'hahahah'
+  }
+}
+
+export async function response({ data }) {
+  const html = `
+    <h3>Home</h3>
+    <pre>${JSON.stringify(data, null, 2)}</pre>
+  `;
+  return new Response(html, {
+    headers: { 'Content-Type': 'text/html' }
+  });
+}
+
+export async function mount({ container, data, parameters }) {
+  if (typeof parameters.hydrateonly === 'undefined') {
+    const body = await response({ data });
+    container.innerHTML = await body.text();
+  } else {
+    console.log('is ssr');
+  }
+}
+
+export async function unmount({ container }) {
+  container.innerHTML = '';
+}

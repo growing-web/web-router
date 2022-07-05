@@ -1,14 +1,10 @@
-export default ({ importmap, routemap, meta, outlet, html, unsafeHTML }) => html`<!DOCTYPE html>
+export default ({ importmap, routemap, meta, outlet, html }) => html`<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" main="IE=edge" />
-    <title>${meta.title}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script type="importmap">
-      ${unsafeHTML(JSON.stringify(importmap, null, 2))}
-    </script>
-
+    ${meta()}
+    ${importmap()}
     <style>
       body {
         margin: 0;
@@ -17,10 +13,9 @@ export default ({ importmap, routemap, meta, outlet, html, unsafeHTML }) => html
   </head>
 
   <body>
-    <web-widget import="@examples/nav"></web-widget>
 
-    <web-router hydrateonly>${outlet}</web-router>
-    <script type="routemap">${unsafeHTML(JSON.stringify(routemap, null, 2))}</script>
+    ${outlet()}
+    ${routemap()}
 
     <script type="module">
       // Polyfill: Declarative Shadow DOM

@@ -11,16 +11,15 @@ const importmap = {
       'https://unpkg.com/@web-widget/container@0.0.27/dist/esm/main.js',
     '@ungap/custom-elements':
       'https://unpkg.com/@ungap/custom-elements@1.1.0/es.js',
-
     '@growing-web/web-router': '/dist/esm/web-router.js',
     '@examples/bootstrap': '/examples/bootstrap.js',
-    '@examples/nav': '/examples/nav.widget.js',
-    '@examples/home': '/examples/index.widget.js',
-    '@examples/news': '/examples/news.widget.js',
-    '@examples/about': '/examples/about.widget.js',
-    '@examples/vue-router':
-      '/examples/vue-router.widget.js',
-    '@examples/404': '/examples/404.widget.js?v=30'
+    "@examples/layout": "/examples/layout.widget.js",
+    "@examples/nav": "/examples/nav.widget.js",
+    "@examples/home": "/examples/index.widget.js",
+    "@examples/news": "/examples/news.widget.js",
+    "@examples/about": "/examples/about.widget.js?v=3",
+    "@examples/vue-router": "/examples/vue-router.widget.js?v=34",
+    "@examples/404": "/examples/404.widget.js?v=32",
   }
 };
 
@@ -28,20 +27,25 @@ const routemap = {
   routes: [
     {
       path: '/',
-      element: 'main',
+      element: 'web-widget',
+      attributes: {
+        import: '@examples/layout'
+      },
       children: [
         {
           element: 'web-widget',
           index: true,
           attributes: {
-            import: '@examples/home'
+            import: '@examples/home',
+            rendertarget: 'light'
           }
         },
         {
           path: 'news',
           element: 'web-widget',
           attributes: {
-            import: '@examples/news'
+            import: '@examples/news',
+            rendertarget: 'light'
           }
         },
         {
@@ -49,6 +53,7 @@ const routemap = {
           element: 'web-widget',
           attributes: {
             import: '@examples/about',
+            rendertarget: 'light',
             'data-id': 'xxxx'
           }
         },
@@ -56,7 +61,8 @@ const routemap = {
           path: 'vue-router/*',
           element: 'web-widget',
           attributes: {
-            import: '@examples/vue-router'
+            import: '@examples/vue-router',
+            rendertarget: 'light'
           }
         },
         {

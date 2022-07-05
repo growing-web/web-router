@@ -1,43 +1,36 @@
 export async function meta() {
   return {
-    title: ''
+    title: 'About'
   };
 }
-export async function data() {}
-export async function body({ data = {} }) {
-  return `<main>
-  <h3>About</h3>
-  <pre>${JSON.stringify(data, null, 2)}</pre>
-  <web-widget import="@examples/nav"></web-widget>
-  </main>`;
-}
 
-export default () => {
-  let main;
-  console.log('About load');
+export async function data() {
   return {
-    async bootstrap({ data }) {
-      console.log('About bootstrap');
-      return new Promise(r => setTimeout(r, 1000));
-    },
-    async mount({ data, container, parameters }) {
-      console.log('About mount');
+    "user": "hello wrold"
+  }
+}
 
-      if (typeof parameters.hydrateonly === 'undefined') {
-        main = document.createElement('main');
-        main.innerHTML = `
-          <h3>About</h3>
-          <pre>${JSON.stringify(data, null, 2)}</pre>
-          <web-widget import="@examples/nav"></web-widget>
-        `;
-        container.appendChild(main);
-      } else {
-        main = container.querySelector('main');
-      }
-    },
-    async unmount({ container }) {
-      console.log('About unmount');
-      container.removeChild(main);
-    }
-  };
-};
+export async function response({ data = {} }) {
+  return new Response(`
+  <main>
+    <h3>About</h3>
+    <pre>${JSON.stringify(data, null, 2)}</pre>
+  </main>`, {
+    headers: { 'Content-Type': 'text/html' }
+  });
+}
+
+export async function mount({ data, container, parameters }) {
+  console.log('About mount');
+
+  if (typeof parameters.hydrateonly === 'undefined') {
+    const body = await response({ data });
+    container.innerHTML = await body.text();
+  } else {
+    console.log('is ssr');
+  }
+}
+
+export async function unmount({ container }) {
+  container.innerHTML = '';
+}

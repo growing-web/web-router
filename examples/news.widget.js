@@ -12,27 +12,48 @@ function guardian() {
   );
 }
 
-export default () => {
-  let main;
-  console.log('News load');
+export async function data() {
+  this.xx = 0;
   return {
-    async bootstrap({ data }) {
-      console.log('News bootstrap');
-      main = document.createElement('main');
-      main.innerHTML = `
-        <h3>News</h3>
-        <a is="web-link" href="/news/778">details</a>
-        <pre>${JSON.stringify(data, null, 2)}</pre>
-      `;
-    },
-    async mount({ container }) {
-      console.log('News mount');
-      container.appendChild(main);
-      guardian();
-    },
-    async unmount({ container }) {
-      console.log('News unmount');
-      container.removeChild(main);
-    }
+    a: 1,
+    b: 2
   };
-};
+}
+
+export async function response({ data }) {
+  const stream = new ReadableStream({
+    start(controller) {
+      let index = 0;
+      const timer = setInterval(() => {
+        controller.enqueue(
+          new TextEncoder('utf-8').encode(`
+            <pre>data: ${JSON.stringify(data, null, 2)}</pre>
+            <pre>log: ${Date.now()}</pre>
+          `)
+        );
+        index++;
+        if (index > 10) {
+          controller.close();
+          clearInterval(timer);
+        }
+      }, 100);
+    }
+  });
+
+  return new Response(stream, {
+    headers: { 'Content-Type': 'text/html' }
+  });
+}
+
+export async function mount({ container, data, parameters }) {
+  if (typeof parameters.hydrateonly === 'undefined') {
+    const body = await response({ data });
+    container.innerHTML = await body.text();
+  } else {
+    console.log('已经被服务端渲染');
+  }
+}
+
+export async function unmount({ container }) {
+  container.innerHTML = '';
+}
