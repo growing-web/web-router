@@ -96,7 +96,6 @@ async function transformRoute(matches, transforms, request) {
     const match = matches[index];
     const { element } = match.route;
 
-    console.log(match)
     if (element) {
       accumulator = transformElementRoute(match, content, context, transforms, request);
     } else if (match.route.import && index === lastIndex) {
