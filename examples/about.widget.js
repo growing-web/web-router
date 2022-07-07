@@ -15,6 +15,7 @@ export async function response({ data = {} }) {
   <main>
     <h3>About</h3>
     <pre>${JSON.stringify(data, null, 2)}</pre>
+    <p><a href="/about/download">download</a><p>
   </main>`, {
     headers: { 'Content-Type': 'text/html' }
   });

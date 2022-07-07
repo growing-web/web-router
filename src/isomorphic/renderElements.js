@@ -1,6 +1,6 @@
 export function create(matches, creator) {
   if (matches == null) return null;
-  return matches.reduceRight((children, match) => {
+  return matches.reduceRight((content, match) => {
     const { element } = match.route;
     const routePath = { routepattern: match.pathname };
     const routeParams = Object.entries(match.params)
@@ -16,44 +16,37 @@ export function create(matches, creator) {
       ...routeParams
     };
 
-    return creator(element, attributes, children);
+    return creator(element, attributes, content);
   }, null);
 }
 
 export function renderToElements(matches, { document } = {}) {
-  return create(matches, (element, attributes, children) => {
-    let node;
+  return create(matches, (element, attributes, content) => {
     if (element) {
-      node = document.createElement(element, {
+      const node = document.createElement(element, {
         is: attributes.is
       });
       Object.entries(attributes).forEach(([name, value]) => {
         node.setAttribute(name, value);
       });
-    } else {
-      node = document.createDocumentFragment();
+      node.appendChild(content);
+      return node;
     }
 
-    if (children) {
-      node.appendChild(children);
-    }
-
-    return node;
+    return content || document.createDocumentFragment();
   });
 }
 
 export function renderToString(matches) {
   const escapeAttributeValue = value => value.replace(/"/g, '&quot;');
-  return create(matches, (element, attributes, children) => {
-    let tag = '';
-
+  return create(matches, (element, attributes, content) => {
     if (element) {
       const attrs = Object.entries(attributes).map(([name, value]) =>
         value ? `${name}="${escapeAttributeValue(value)}"` : name
       );
-      tag = `<${[element, ...attrs].join(' ')}>${children || ''}</${element}>`;
+      return `<${[element, ...attrs].join(' ')}>${content}</${element}>`;
     }
 
-    return tag;
+    return content || '';
   });
 }

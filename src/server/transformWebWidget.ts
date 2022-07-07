@@ -6,18 +6,15 @@ export async function transformWebWidget (element, attributes, children, deps) {
   }
 
   const scope = { meta: {}, data: {}, headers: {}, status: 200, statusText: '' };
+  const clientonly = typeof attributes['clientonly'] === 'string'
   const hydrateonly = typeof attributes['hydrateonly'] === 'string';
   const rendertarget = attributes['rendertarget'] || 'shadow';
-  const loading = attributes['loading'] || 'auto';
-  const inactive = typeof attributes['inactive'] === 'string';
   const module = attributes['import'];
   const src = attributes['src'];
   const url = module || src;
-  const shadow = rendertarget === 'shadow';
   const ssr =
+    !clientonly &&
     !hydrateonly &&
-    !inactive &&
-    loading !== 'lazy' &&
     url;
 
   if (!ssr) {
@@ -25,14 +22,10 @@ export async function transformWebWidget (element, attributes, children, deps) {
   }
 
   try {
-    let app = await import(url);
+    let app = await import(/* @vite-ignore */ /* webpackIgnore: true */url);
     let meta = null;
     let data = null;
-    const context = {
-      async mount() {},
-      async update() {},
-      async unmount() {}
-    };
+    const context = {};
     const parameters = attributes;
     const dependencies = { ...deps, meta, data, context, parameters };
     const lifecycles = app.default ? app.default(dependencies) : app;
@@ -64,6 +57,10 @@ export async function transformWebWidget (element, attributes, children, deps) {
       throw new TypeError(`The application does not return a Response object as expected`);
     }
 
+    if (response.headers.get('Content-Type') !== 'text/html') {
+      throw new TypeError(`This MIME type is not supported: ${response.headers.get('Content-Type')}`);
+    }
+
     scope.headers = Object.fromEntries(response.headers);
     scope.status = response.status;
     scope.statusText = response.statusText;
@@ -78,7 +75,7 @@ export async function transformWebWidget (element, attributes, children, deps) {
     
     attributes.hydrateonly = '';
 
-    if (shadow) {
+    if (rendertarget === 'shadow') {
       children = html`
         <template shadowroot="open">
           ${asyncInnerHTML}
@@ -97,7 +94,7 @@ export async function transformWebWidget (element, attributes, children, deps) {
     );
     children = html`
       <script>
-        /*By WebRouterServer*/
+        /*By WebWidgetServer*/
         (script => {
           console.error('SSR_ERROR', script.parentNode);
           script.parentNode.removeChild(script);

@@ -1,15 +1,5 @@
-function guardian() {
-  window.addEventListener(
-    'navigationwillchange',
-    e => {
-      // Check if we should navigate away from this page
-      if (!confirm('You have unsafed data. Do you wish to discard it?')) {
-        e.preventDefault();
-        guardian();
-      }
-    },
-    { once: true }
-  );
+export async function meta() {
+  return { title: 'News' }
 }
 
 export async function data() {
@@ -32,11 +22,11 @@ export async function response({ data }) {
           `)
         );
         index++;
-        if (index > 10) {
+        if (index > 3) {
           controller.close();
           clearInterval(timer);
         }
-      }, 100);
+      }, 1000);
     }
   });
 

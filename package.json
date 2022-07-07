@@ -13,8 +13,7 @@
       "import": "./dist/esm/web-router.js"
     },
     "./server": {
-      "require": "./dist/cjs/web-router-server.js",
-      "import": "./dist/esm/web-router-server.js"
+      "import": "./src/server/router.ts"
     }
   },
   "scripts": {
@@ -39,7 +38,6 @@
   "homepage": "https://github.com/growing-web/web-router#readme",
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
-    "@node-loader/import-maps": "^1.0.3",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@rollup/plugin-node-resolve": "^13.0.6",
     "@rollup/plugin-replace": "^3.0.0",

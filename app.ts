@@ -20,6 +20,7 @@ const importmap = {
     "@examples/about": "/examples/about.widget.js?v=3",
     "@examples/vue-router": "/examples/vue-router.widget.js?v=34",
     "@examples/404": "/examples/404.widget.js?v=32",
+    "@examples/download": "/examples/download.js",
   }
 };
 
@@ -55,7 +56,13 @@ const routemap = {
             import: '@examples/about',
             rendertarget: 'light',
             'data-id': 'xxxx'
-          }
+          },
+          children: [
+            {
+              path: 'download',
+              import: '@examples/download'
+            },
+          ]
         },
         {
           path: 'vue-router/*',
@@ -67,14 +74,14 @@ const routemap = {
         },
         {
           path: 'test',
-          element: 'test-element',
-          attributes: {},
           children: [
             {
-              path: '*',
+              path: 'xxx',
               element: 'web-widget',
               attributes: {
-                import: '@examples/404'
+                import: '@examples/about',
+                rendertarget: 'light',
+                'data-id': 'xxxx'
               }
             }
           ]
