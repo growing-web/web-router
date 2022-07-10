@@ -14,23 +14,26 @@ export async function response({ data }) {
   const stream = new ReadableStream({
     start(controller) {
       let index = 0;
-      const timer = setInterval(() => {
+      this.timer = setInterval(() => {
         controller.enqueue(
-          new TextEncoder('utf-8').encode(`
+          `
             <pre>data: ${JSON.stringify(data, null, 2)}</pre>
             <pre>log: ${Date.now()}</pre>
-          `)
+          `
         );
         index++;
         if (index > 3) {
           controller.close();
-          clearInterval(timer);
+          clearInterval(this.timer);
         }
       }, 1000);
+    },
+    cancel() {
+      clearInterval(this.timer);
     }
   });
 
-  return new Response(stream, {
+  return new Response(stream.pipeThrough(new TextEncoderStream()), {
     headers: { 'Content-Type': 'text/html' }
   });
 }

@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.146.0/http/server.ts';
-import { router } from './src/server/router.ts';
-import layout from './layout.ts';
-import { transformWebWidget } from './src/server/transformWebWidget.ts';
+import { router } from './src/server/router.js';
+import layout from './layout.js';
+import transformWebWidget from './src/server/transformWebWidget.js';
 
 const importmap = {
   imports: {
@@ -99,7 +99,7 @@ const routemap = {
   ]
 };
 
-function handler(request: Request): Response {
+function handler(request) {
   const { pathname } = new URL(request.url);
 
   // 演示用的静态文件目录
@@ -119,7 +119,7 @@ function handler(request: Request): Response {
     routemap,
     importmap,
     layout,
-    transforms: [transformWebWidget]
+    transforms: [transformWebWidget()]
   });
 }
 

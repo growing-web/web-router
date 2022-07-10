@@ -1,23 +1,17 @@
-import { html } from './src/server/router.ts';
+import { html, Importmap, Meta, Outlet, Routemap } from './src/server/router.js';
 
 export default ({ importmap, routemap, meta, outlet }) => html`<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" main="IE=edge" />
-    ${meta()}
-    ${importmap()}
-    <style>
-      body {
-        margin: 0;
-      }
-    </style>
+    ${Meta({ charset: 'utf8', title: '', ...meta })}
+    ${Importmap(importmap)}
+    <style>body {margin: 0}</style>
   </head>
 
   <body>
 
-    ${outlet()}
-    ${routemap()}
+    ${Outlet(outlet)}
+    ${Routemap(routemap)}
 
     <script type="module">
       // Polyfill: Declarative Shadow DOM

@@ -76,7 +76,6 @@ export class HTMLWebRouterElement extends HTMLElement {
     ) => this[CHANGE](update);
     this[UN_HISTORY_LISTEN] = history.listen(render);
 
-    // Server-Side Rendering
     if (!this.hasAttribute('hydrateonly')) {
       render();
     }
