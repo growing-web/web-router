@@ -1,4 +1,4 @@
-import { html, Importmap, Meta, Outlet, Routemap } from './src/server/router.js';
+import { html, Importmap, Meta, Outlet, Routemap } from './src/server/index.js';
 
 export default ({ importmap, routemap, meta, outlet }) => html`<!DOCTYPE html>
 <html>

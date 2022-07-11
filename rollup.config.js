@@ -18,11 +18,6 @@ export default () => {
           sourcemap: true
         },
         {
-          file: 'dist/system/web-router.js',
-          format: 'system',
-          sourcemap: true
-        },
-        {
           file: 'dist/cjs/web-router.js',
           format: 'cjs',
           sourcemap: true
@@ -43,21 +38,43 @@ export default () => {
           : {}
       ]
     },
-    // {
-    //   input: 'src/server/WebRouterElementServer.js',
-    //   output: [
-    //     {
-    //       file: 'dist/esm/web-router-server.js',
-    //       format: 'esm',
-    //       sourcemap: true
-    //     },
-    //     {
-    //       file: 'dist/cjs/web-router-server.js',
-    //       format: 'cjs',
-    //       sourcemap: true
-    //     }
-    //   ],
-    //   plugins: [nodeResolve(), commonjs()]
-    // }
+    {
+      input: 'src/server/index.js',
+      output: [
+        {
+          file: 'dist/esm/web-router.server.js',
+          format: 'esm',
+          sourcemap: true
+        }
+      ],
+      plugins: [
+        isProduction
+          ? terser({
+              keep_classnames: true
+            })
+          : {},
+        nodeResolve(),
+        commonjs()
+      ]
+    },
+    {
+      input: 'src/server/plugins/webWidget.js',
+      output: [
+        {
+          file: 'dist/esm/web-widget.server.js',
+          format: 'esm',
+          sourcemap: true
+        }
+      ],
+      plugins: [
+        isProduction
+          ? terser({
+              keep_classnames: true
+            })
+          : {},
+        nodeResolve(),
+        commonjs()
+      ]
+    }
   ];
 };

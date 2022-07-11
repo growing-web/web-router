@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.146.0/http/server.ts';
-import { router } from './src/server/router.js';
+import { router } from './src/server/index.js';
 import layout from './layout.js';
 import webWidget from './src/server/plugins/webWidget.js';
 

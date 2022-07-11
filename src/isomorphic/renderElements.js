@@ -29,7 +29,9 @@ export function renderToElements(matches, { document } = {}) {
       Object.entries(attributes).forEach(([name, value]) => {
         node.setAttribute(name, value);
       });
-      node.appendChild(content);
+      if (content) {
+        node.appendChild(content);
+      }
       return node;
     }
 
@@ -44,7 +46,7 @@ export function renderToString(matches) {
       const attrs = Object.entries(attributes).map(([name, value]) =>
         value ? `${name}="${escapeAttributeValue(value)}"` : name
       );
-      return `<${[element, ...attrs].join(' ')}>${content}</${element}>`;
+      return `<${[element, ...attrs].join(' ')}>${content || ''}</${element}>`;
     }
 
     return content || '';

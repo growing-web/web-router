@@ -13,7 +13,10 @@
       "import": "./dist/esm/web-router.js"
     },
     "./server": {
-      "import": "./src/server/router.ts"
+      "import": "./dist/esm/web-router.server.js"
+    },
+    "./server/web-widget": {
+      "import": "./dist/esm/web-widget.server.js"
     }
   },
   "scripts": {
