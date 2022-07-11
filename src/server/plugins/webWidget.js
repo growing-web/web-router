@@ -1,9 +1,9 @@
-import { html, unsafeHTML } from '@worker-tools/html';
-
-export default function webWidget() {
+export default function webWidget({ timeout = 2000 } = {}) {
   return {
     element: 'web-widget',
+    timeout,
     async transform(attributes, outlet) {
+      const { html, unsafeHTML } = this;
       const clientonly = typeof attributes['clientonly'] === 'string';
       const hydrateonly = typeof attributes['hydrateonly'] === 'string';
       const rendertarget = attributes['rendertarget'] || 'shadow';
@@ -31,8 +31,7 @@ export default function webWidget() {
 
         if (typeof lifecycles.data === 'function') {
           const data = await lifecycles.data
-            .call(context, dependencies)
-            .catch(() => null);
+            .call(context, dependencies);
           if (data) {
             dependencies.data = data;
             attributes.data = JSON.stringify(data);
@@ -42,8 +41,7 @@ export default function webWidget() {
 
         if (typeof lifecycles.meta === 'function') {
           const meta = await lifecycles.meta
-            .call(context, dependencies)
-            .catch(() => null);
+            .call(context, dependencies);
           if (meta) {
             dependencies.meta = meta;
             this.emitData('meta', meta);
@@ -53,7 +51,7 @@ export default function webWidget() {
 
         if (typeof lifecycles.response !== 'function') {
           throw new TypeError(
-            `The current application does not export the "response" function`
+            `Module does not export "response" function`
           );
         }
 
@@ -61,7 +59,7 @@ export default function webWidget() {
 
         if (!(response instanceof Response)) {
           throw new TypeError(
-            `The application does not return a Response object as expected`
+            `Not an "Response" object was returned`
           );
         }
 
@@ -98,7 +96,7 @@ export default function webWidget() {
       } catch (error) {
         this.error(
           Object.assign(error, {
-            message: `SSR_ERROR: "${url}" ${error.message}`
+            message: `SSR_ERROR: ${url} ${error.message}`
           })
         );
         outlet = html`

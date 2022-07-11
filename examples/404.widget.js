@@ -1,14 +1,14 @@
-export async function meta() {
-  return {
-    title: '404 页面没找到'
-  };
-}
-
 export async function data() {
   this.xx = 0;
   return {
     a: 1,
     b: 2
+  };
+}
+
+export async function meta() {
+  return {
+    title: '404 页面没找到'
   };
 }
 

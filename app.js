@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.146.0/http/server.ts';
 import { router } from './src/server/router.js';
 import layout from './layout.js';
-import transformWebWidget from './src/server/transformWebWidget.js';
+import webWidget from './src/server/plugins/webWidget.js';
 
 const importmap = {
   imports: {
@@ -118,7 +118,7 @@ function handler(request) {
     routemap,
     importmap,
     layout,
-    transforms: [transformWebWidget()]
+    transforms: [webWidget()]
   });
 }
 

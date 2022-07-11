@@ -1,13 +1,13 @@
-export async function meta() {
-  return {
-    title: 'About'
-  };
-}
-
 export async function data() {
   return {
     "user": "hello wrold"
   }
+}
+
+export async function meta() {
+  return {
+    title: 'About'
+  };
 }
 
 export async function response({ request, meta = {}, data = {} }) {

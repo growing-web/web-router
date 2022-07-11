@@ -21,6 +21,28 @@ const getRouteArgs = match =>
       { routepattern: match.pathname }
     ));
 
+function reasonableTime(promise, timeout) {
+  return new Promise((resolve, reject) => {
+    let finished = false;
+    promise
+      .then(val => {
+        finished = true;
+        resolve(val);
+      })
+      .catch(val => {
+        finished = true;
+        reject(val);
+      });
+
+    setTimeout(() => {
+      if (!finished) {
+        finished = true;
+        reject(new Error(`Request timed out`));
+      }
+    }, timeout);
+  });
+}
+
 async function transformElementRoute({
   match,
   outlet,
@@ -39,8 +61,10 @@ async function transformElementRoute({
     for (const transform of transforms) {
       if (transform.element === localName) {
         const data = {};
-        const transformed = await transform.transform.call(
+        const timeout = transform.timeout || 2000;
+        const transformed = await reasonableTime(transform.transform.call(
           {
+            html, unsafeHTML,
             provider,
             error(error) {
               console.error(error);
@@ -50,8 +74,13 @@ async function transformElementRoute({
             }
           },
           ...results
-        );
+        ), timeout).catch((error) => {
+          console.error(error);
+          return null;
+        });
+
         defaultsDeep(dataset, data);
+
         if (transformed) {
           Object.assign(results, transformed);
           break;
@@ -90,18 +119,14 @@ async function transformResourceRoute({ match, provider }) {
   const lifecycles = app.default ? app.default(dependencies) : app;
 
   if (typeof lifecycles.data === 'function') {
-    const data = await lifecycles.data
-      .call(context, dependencies)
-      .catch(() => null);
+    const data = await lifecycles.data.call(context, dependencies);
     if (data) {
       dependencies.data = data;
     }
   }
 
   if (typeof lifecycles.meta === 'function') {
-    const meta = await lifecycles.meta
-      .call(context, dependencies)
-      .catch(() => null);
+    const meta = await lifecycles.meta.call(context, dependencies);
     if (meta) {
       dependencies.meta = meta;
     }
@@ -109,7 +134,7 @@ async function transformResourceRoute({ match, provider }) {
 
   if (typeof lifecycles.response !== 'function') {
     throw new TypeError(
-      `The current application does not export the "response" function: ${url}`
+      `Module does not export "response" function: ${url}`
     );
   }
 
@@ -117,7 +142,7 @@ async function transformResourceRoute({ match, provider }) {
 
   if (!(response instanceof Response)) {
     throw new TypeError(
-      `The application does not return a Response object as expected: ${url}`
+      `Not an "Response" object was returned: ${url}`
     );
   }
 
@@ -140,7 +165,7 @@ async function transformRoute(matches, transforms, provider) {
     const { element } = match.route;
 
     if (element) {
-      outlet = transformElementRoute({
+      outlet = await transformElementRoute({
         match,
         outlet,
         dataset,
@@ -148,11 +173,11 @@ async function transformRoute(matches, transforms, provider) {
         provider
       });
     } else if (match.route.import && index === lastIndex) {
-      outlet = transformResourceRoute({ match, provider });
+      outlet = await transformResourceRoute({ match, provider });
       type = 'resource';
       break;
     } else {
-      outlet = transformEmptyRoute({ outlet });
+      outlet = await transformEmptyRoute({ outlet });
     }
   }
 
@@ -160,44 +185,51 @@ async function transformRoute(matches, transforms, provider) {
 }
 
 export async function router({
-  routemap,
   request,
   layout,
-  importmap,
-  transforms
+  routemap = { routes: {} },
+  importmap = { imports: {} },
+  transforms = []
 }) {
-  const { pathname } = new URL(request.url);
-  const matches = matchRoutes(routemap.routes, pathname);
-  const results = await transformRoute(matches, transforms, { request });
+  try {
+    const { pathname } = new URL(request.url);
+    const matches = matchRoutes(routemap.routes, pathname);
+    const results = await transformRoute(matches, transforms, { request });
 
-  if (!results) {
+    if (!results) {
+      return new Response(null, {
+        status: 404,
+        statusText: 'Not Found'
+      });
+    }
+
+    const { outlet, type, dataset } = results;
+    const { meta = {} } = dataset;
+
+    if (type === 'resource') {
+      return outlet;
+    }
+
+    const content = layout
+      ? layout({
+          importmap,
+          routemap,
+          meta,
+          outlet
+        })
+      : outlet;
+
+    const response = new HTMLResponse(content, {
+      status: dataset.status || 200,
+      statusText: dataset.statusText || '',
+      headers: dataset.headers || {}
+    });
+
+    return response;
+  } catch (error) {
+    console.error(error);
     return new Response(null, {
-      status: 404,
-      statusText: 'Not Found'
+      status: 500
     });
   }
-
-  const { outlet, type, dataset } = results;
-  const { meta = {} } = dataset;
-
-  if (type === 'resource') {
-    return outlet;
-  }
-
-  const content = layout
-    ? layout({
-        importmap,
-        routemap,
-        meta,
-        outlet
-      })
-    : outlet;
-
-  const response = new HTMLResponse(content, {
-    status: dataset.status || 200,
-    statusText: dataset.statusText || '',
-    headers: dataset.headers || {}
-  });
-
-  return response;
 }

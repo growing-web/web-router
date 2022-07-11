@@ -4,6 +4,12 @@ export async function data() {
   }
 }
 
+export async function meta() {
+  return {
+    title: 'Home'
+  };
+}
+
 export async function response({ data }) {
   const html = `
     <h3>Home</h3>

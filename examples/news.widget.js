@@ -1,7 +1,3 @@
-export async function meta() {
-  return { title: 'News' }
-}
-
 export async function data() {
   this.xx = 0;
   return {
