@@ -10,11 +10,13 @@ export async function data() {
   }
 }
 
-export async function response({ data = {} }) {
+export async function response({ request, meta = {}, data = {} }) {
   return new Response(`
   <main>
     <h3>About</h3>
-    <pre>${JSON.stringify(data, null, 2)}</pre>
+    <pre>request.url: ${request?.url}</pre>
+    <pre>meta: ${JSON.stringify(meta, null, 2)}</pre>
+    <pre>data: ${JSON.stringify(data, null, 2)}</pre>
     <p><a href="/about/download">download</a><p>
   </main>`, {
     headers: { 'Content-Type': 'text/html' }

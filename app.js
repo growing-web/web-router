@@ -54,8 +54,7 @@ const routemap = {
           element: 'web-widget',
           attributes: {
             import: '@examples/about',
-            rendertarget: 'light',
-            'data-id': 'xxxx'
+            rendertarget: 'light'
           },
           children: [
             {
@@ -108,7 +107,7 @@ function handler(request) {
     return fetch(url).then(res => {
       return new Response(res.body, {
         headers: {
-          "content-type": "application/javascript",
+          'content-type': 'application/javascript',
         },
       });
     });

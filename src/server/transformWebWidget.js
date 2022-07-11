@@ -1,9 +1,9 @@
 import { html, unsafeHTML } from '@worker-tools/html';
 
-export default function () {
+export default function webWidget() {
   return {
     element: 'web-widget',
-    async transform(attributes, content) {
+    async transform(attributes, outlet) {
       const clientonly = typeof attributes['clientonly'] === 'string';
       const hydrateonly = typeof attributes['hydrateonly'] === 'string';
       const rendertarget = attributes['rendertarget'] || 'shadow';
@@ -18,26 +18,19 @@ export default function () {
         let app = await import(
           /* @vite-ignore */ /* webpackIgnore: true */ url
         );
-        let meta = null;
-        let data = null;
-        const request = this.request;
         const context = {};
         const parameters = attributes;
-        const dependencies = { request, meta, data, context, parameters };
+        const dependencies = {
+          ...this.provider,
+          meta: null,
+          data: null,
+          context,
+          parameters
+        };
         const lifecycles = app.default ? app.default(dependencies) : app;
 
-        if (typeof lifecycles.meta === 'function') {
-          meta = await lifecycles.meta
-            .call(context, dependencies)
-            .catch(() => null);
-          if (meta) {
-            dependencies.meta = meta;
-            this.emitData('meta', meta);
-          }
-        }
-
         if (typeof lifecycles.data === 'function') {
-          data = await lifecycles.data
+          const data = await lifecycles.data
             .call(context, dependencies)
             .catch(() => null);
           if (data) {
@@ -47,16 +40,24 @@ export default function () {
           }
         }
 
+        if (typeof lifecycles.meta === 'function') {
+          const meta = await lifecycles.meta
+            .call(context, dependencies)
+            .catch(() => null);
+          if (meta) {
+            dependencies.meta = meta;
+            this.emitData('meta', meta);
+          }
+        }
+
+
         if (typeof lifecycles.response !== 'function') {
           throw new TypeError(
             `The current application does not export the "response" function`
           );
         }
 
-        const response = await lifecycles.response.call(
-          context,
-          dependencies
-        );
+        const response = await lifecycles.response.call(context, dependencies);
 
         if (!(response instanceof Response)) {
           throw new TypeError(
@@ -87,18 +88,20 @@ export default function () {
         attributes.hydrateonly = '';
 
         if (rendertarget === 'shadow') {
-          content = html`
-            <template shadowroot="open"> ${asyncInnerHTML} </template>
-            ${content}
+          outlet = html`
+            <template shadowroot="open">${asyncInnerHTML}</template>
+            ${outlet}
           `;
         } else {
-          content = asyncInnerHTML;
+          outlet = asyncInnerHTML;
         }
       } catch (error) {
-        this.error(Object.assign(error, {
-          message: `SSR_ERROR: "${url}" ${error.message}`
-        }));
-        content = html`
+        this.error(
+          Object.assign(error, {
+            message: `SSR_ERROR: "${url}" ${error.message}`
+          })
+        );
+        outlet = html`
           <script>
             /*By WebWidgetServer*/
             (script => {
@@ -106,11 +109,11 @@ export default function () {
               script.parentNode.removeChild(script);
             })(document.currentScript);
           </script>
-          ${content}
+          ${outlet}
         `;
       }
 
-      return [attributes, content];
+      return [attributes, outlet];
     }
   };
 }

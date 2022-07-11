@@ -2,6 +2,7 @@ import { html, HTMLResponse, unsafeHTML } from '@worker-tools/html';
 import defaultsDeep from 'lodash-es/defaultsDeep.js';
 import { matchRoutes } from '../isomorphic/matchRoutes.js';
 
+export { html, unsafeHTML };
 export { Importmap } from './Importmap.js';
 export { Meta } from './Meta.js';
 export { Outlet } from './Outlet.js';
@@ -20,19 +21,19 @@ const getRouteArgs = match =>
       { routepattern: match.pathname }
     ));
 
-async function transformElementRoute(
+async function transformElementRoute({
   match,
-  content,
+  outlet,
   dataset,
   transforms,
-  request
-) {
+  provider
+}) {
   const localName = match.route.element;
   const attributes = {
     ...match.route.attributes,
     ...getRouteArgs(match)
   };
-  const results = [attributes, content];
+  const results = [attributes, outlet];
 
   if (transforms) {
     for (const transform of transforms) {
@@ -40,7 +41,7 @@ async function transformElementRoute(
         const data = {};
         const transformed = await transform.transform.call(
           {
-            request,
+            provider,
             error(error) {
               console.error(error);
             },
@@ -72,29 +73,37 @@ async function transformElementRoute(
   return html`${startTag}${await results[1]}${endTag}`;
 }
 
-async function transformResourceRoute(match, request) {
+async function transformResourceRoute({ match, provider }) {
   const url = match.route.import;
   const app = await import(url);
-  let meta = null;
-  let data = null;
   const context = {};
   const parameters = {
     ...getRouteArgs(match)
   };
-  const dependencies = { request, meta, data, context, parameters };
+  const dependencies = {
+    ...provider,
+    meta: null,
+    data: null,
+    context,
+    parameters
+  };
   const lifecycles = app.default ? app.default(dependencies) : app;
 
-  if (typeof lifecycles.meta === 'function') {
-    meta = await lifecycles.meta.call(context, dependencies).catch(() => null);
-    if (meta) {
-      dependencies.meta = meta;
+  if (typeof lifecycles.data === 'function') {
+    const data = await lifecycles.data
+      .call(context, dependencies)
+      .catch(() => null);
+    if (data) {
+      dependencies.data = data;
     }
   }
 
-  if (typeof lifecycles.data === 'function') {
-    data = await lifecycles.data.call(context, dependencies).catch(() => null);
-    if (data) {
-      dependencies.data = data;
+  if (typeof lifecycles.meta === 'function') {
+    const meta = await lifecycles.meta
+      .call(context, dependencies)
+      .catch(() => null);
+    if (meta) {
+      dependencies.meta = meta;
     }
   }
 
@@ -104,10 +113,7 @@ async function transformResourceRoute(match, request) {
     );
   }
 
-  const response = await lifecycles.response.call(
-    context,
-    dependencies
-  );
+  const response = await lifecycles.response.call(context, dependencies);
 
   if (!(response instanceof Response)) {
     throw new TypeError(
@@ -118,11 +124,11 @@ async function transformResourceRoute(match, request) {
   return response;
 }
 
-async function transformEmptyRoute(match, content) {
-  return (await content) || html``;
+async function transformEmptyRoute({ outlet }) {
+  return (await outlet) || html``;
 }
 
-async function transformRoute(matches, transforms, request) {
+async function transformRoute(matches, transforms, provider) {
   if (matches == null) return null;
   let outlet;
   let type = 'element';
@@ -130,31 +136,28 @@ async function transformRoute(matches, transforms, request) {
   const lastIndex = matches.length - 1;
 
   for (let index = lastIndex; index >= 0; index--) {
-    const content = outlet;
     const match = matches[index];
     const { element } = match.route;
 
     if (element) {
-      outlet = transformElementRoute(
+      outlet = transformElementRoute({
         match,
-        content,
+        outlet,
         dataset,
         transforms,
-        request
-      );
+        provider
+      });
     } else if (match.route.import && index === lastIndex) {
-      outlet = transformResourceRoute(match, request);
+      outlet = transformResourceRoute({ match, provider });
       type = 'resource';
       break;
     } else {
-      outlet = transformEmptyRoute(match, content);
+      outlet = transformEmptyRoute({ outlet });
     }
   }
 
   return { outlet, type, dataset };
 }
-
-export { html, unsafeHTML };
 
 export async function router({
   routemap,
@@ -165,12 +168,12 @@ export async function router({
 }) {
   const { pathname } = new URL(request.url);
   const matches = matchRoutes(routemap.routes, pathname);
-  const results = await transformRoute(matches, transforms, request);
+  const results = await transformRoute(matches, transforms, { request });
 
   if (!results) {
     return new Response(null, {
-      status: 204,
-      statusText: 'No Content'
+      status: 404,
+      statusText: 'Not Found'
     });
   }
 
@@ -188,7 +191,7 @@ export async function router({
         meta,
         outlet
       })
-    : () => outlet;
+    : outlet;
 
   const response = new HTMLResponse(content, {
     status: dataset.status || 200,
