@@ -8,7 +8,16 @@ export async function data() {
 
 export async function meta() {
   return {
-    title: '404 页面没找到'
+    title: '404 页面没找到',
+    links: [{
+      rel: "icon",
+      href: "/favicon.png",
+      type: "image/png",
+    }],
+    // refresh: {
+    //   httpEquiv: "refresh",
+    //   content: "3;url=https://www.mozilla.org",
+    // },
   };
 }
 

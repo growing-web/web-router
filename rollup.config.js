@@ -4,9 +4,28 @@ import { terser } from 'rollup-plugin-terser';
 import replace from '@rollup/plugin-replace';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import minifyHTML from 'rollup-plugin-minify-html-literals';
 
 export default () => {
   const isProduction = process.env.NODE_ENV !== 'development';
+  const plugins = [
+    replace({
+      preventAssignment: true,
+      values: {
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || '')
+      }
+    }),
+    ...(isProduction
+      ? [
+          minifyHTML(),
+          terser({
+            keep_classnames: true
+          })
+        ]
+      : []),
+    nodeResolve(),
+    commonjs()
+  ];
 
   return [
     {
@@ -23,20 +42,7 @@ export default () => {
           sourcemap: true
         }
       ],
-      plugins: [
-        replace({
-          preventAssignment: true,
-          values: {
-            'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || '')
-          }
-        }),
-        nodeResolve(),
-        isProduction
-          ? terser({
-              keep_classnames: true
-            })
-          : {}
-      ]
+      plugins
     },
     {
       input: 'src/server/index.js',
@@ -47,15 +53,7 @@ export default () => {
           sourcemap: true
         }
       ],
-      plugins: [
-        isProduction
-          ? terser({
-              keep_classnames: true
-            })
-          : {},
-        nodeResolve(),
-        commonjs()
-      ]
+      plugins
     },
     {
       input: 'src/server/plugins/webWidget.js',
@@ -66,15 +64,7 @@ export default () => {
           sourcemap: true
         }
       ],
-      plugins: [
-        isProduction
-          ? terser({
-              keep_classnames: true
-            })
-          : {},
-        nodeResolve(),
-        commonjs()
-      ]
+      plugins
     }
   ];
 };

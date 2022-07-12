@@ -3,10 +3,7 @@ import defaultsDeep from 'lodash-es/defaultsDeep.js';
 import { matchRoutes } from '../isomorphic/matchRoutes.js';
 
 export { html, unsafeHTML };
-export { Importmap } from './Importmap.js';
-export { Meta } from './Meta.js';
-export { Outlet } from './Outlet.js';
-export { Routemap } from './Routemap.js';
+export * from './components.js';
 
 const escapeAttributeValue = value => value.replace(/"/g, '&quot;');
 
