@@ -1,22 +1,18 @@
 {
   "name": "@growing-web/web-router",
   "type": "module",
-  "version": "1.0.0-beta",
+  "version": "0.0.3-beta",
   "description": "web router",
-  "source": "src/client/index.js",
-  "main": "dist/cjs/web-router.js",
-  "module": "dist/esm/web-router.js",
-  "system": "dist/system/web-router.js",
   "exports": {
     ".": {
       "require": "./dist/cjs/web-router.js",
       "import": "./dist/esm/web-router.js"
     },
     "./server": {
-      "import": "./dist/esm/web-router.server.js"
+      "import": "./src/server/index.js"
     },
     "./server/web-widget": {
-      "import": "./dist/esm/web-widget.server.js"
+      "import": "./src/server/plugins/webWidget.js"
     }
   },
   "scripts": {

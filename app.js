@@ -1,7 +1,9 @@
 import { serve } from 'https://deno.land/std@0.146.0/http/server.ts';
 import { router } from './src/server/index.js';
-import layout from './layout.js';
 import webWidget from './src/server/plugins/webWidget.js';
+// import { router } from './dist/esm/web-router.server.js';
+// import webWidget from './dist/esm/web-widget.server.js';
+import layout from './layout.js';
 
 const importmap = {
   imports: {

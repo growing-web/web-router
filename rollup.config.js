@@ -35,17 +35,15 @@ export default () => {
           file: 'dist/esm/web-router.js',
           format: 'esm',
           sourcemap: true
-        },
-        {
-          file: 'dist/cjs/web-router.js',
-          format: 'cjs',
-          sourcemap: true
         }
       ],
       plugins
     },
     {
       input: 'src/server/index.js',
+      moduleContext(id) {
+        return 'this';
+      },
       output: [
         {
           file: 'dist/esm/web-router.server.js',
