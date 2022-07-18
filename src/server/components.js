@@ -24,14 +24,14 @@ export function Meta(meta) {
     }
 
     const isOpenGraphTag = name.startsWith('og:');
-    const isLinksTag = name === 'links';
+    const isLinkTag = name === 'links';
 
     return [value].flat().map(content => {
       if (isOpenGraphTag) {
         return html`<meta content="${content}" property="${name}" />`;
       }
 
-      if (isLinksTag) {
+      if (isLinkTag) {
         return value.map(link =>
           unsafeHTML(
             `<link ${Object.entries(link)
@@ -68,4 +68,26 @@ export function Routemap(routemap) {
   return html`<script type="routemap">
     ${unsafeHTML(JSON.stringify(routemap, null, 2))}
   </script>`;
+}
+
+export function ScrollRestoration() {
+  let STORAGE_KEY = "positions";
+  let restoreScroll = ((STORAGE_KEY) => {
+    if (!window.history.state || !window.history.state.key) {
+      let key = Math.random().toString(32).slice(2);
+      window.history.replaceState({ key }, "");
+    }
+    try {
+      let positions = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "{}");
+      let storedY = positions[window.history.state.key];
+      if (typeof storedY === "number") {
+        window.scrollTo(0, storedY);
+      }
+    } catch (error) {
+      console.error(error);
+      sessionStorage.removeItem(STORAGE_KEY);
+    }
+  }).toString();
+
+  return html`<script>${unsafeHTML(`(${restoreScroll})(${JSON.stringify(STORAGE_KEY)})`)}</script>`
 }

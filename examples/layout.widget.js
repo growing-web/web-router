@@ -1,15 +1,21 @@
 export async function response() {
   const html = `
+    <style>
+      nav {
+        position: fixed;
+        top: 0;
+        line-height: 2em;
+        border-bottom: 1px solid #ccc;
+      }
+      a[is="web-link"][active] {
+        background: #F00;
+        color: #FFF;
+      }
+      main {
+        margin-top: 4em;
+      }
+    </style>
     <nav>
-      <style>
-        a[is="web-link"][active] {
-          background: #F00;
-          color: #FFF;
-        }
-        main {
-          border-top: 1px solid #ccc;
-        }
-      </style>
       <a is="web-link" href="/">Home</a> |
       <a is="web-link" href="/news">News</a> |
       <a is="web-link" href="/about">About</a> |
@@ -27,8 +33,8 @@ export async function response() {
   });
 }
 
-export async function mount({ data, container, parameters }) {
-  if (typeof parameters.hydrateonly === 'undefined') {
+export async function mount({ data, container, parameters  }) {
+  if (typeof parameters .hydrateonly === 'undefined') {
     const body = await response({ data });
     container.innerHTML = await body.text();
   } else {

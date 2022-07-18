@@ -15,23 +15,20 @@ export default function webWidget({ timeout = 2000 } = {}) {
       }
 
       try {
-        let app = await import(
+        let module = await import(
           /* @vite-ignore */ /* webpackIgnore: true */ url
         );
-        const context = {};
         const parameters = attributes;
         const dependencies = {
           ...this.provider,
           meta: null,
           data: null,
-          context,
           parameters
         };
-        const lifecycles = app.default ? app.default(dependencies) : app;
+        const lifecycles = { ...module };
 
         if (typeof lifecycles.data === 'function') {
-          const data = await lifecycles.data
-            .call(context, dependencies);
+          const data = await lifecycles.data(dependencies);
           if (data) {
             dependencies.data = data;
             attributes.data = JSON.stringify(data);
@@ -40,27 +37,21 @@ export default function webWidget({ timeout = 2000 } = {}) {
         }
 
         if (typeof lifecycles.meta === 'function') {
-          const meta = await lifecycles.meta
-            .call(context, dependencies);
+          const meta = await lifecycles.meta(dependencies);
           if (meta) {
             dependencies.meta = meta;
             this.emitData('meta', meta);
           }
         }
 
-
         if (typeof lifecycles.response !== 'function') {
-          throw new TypeError(
-            `Module does not export "response" function`
-          );
+          throw new TypeError(`Module does not export "response" function`);
         }
 
-        const response = await lifecycles.response.call(context, dependencies);
+        const response = await lifecycles.response(dependencies);
 
         if (!(response instanceof Response)) {
-          throw new TypeError(
-            `Not an "Response" object was returned`
-          );
+          throw new TypeError(`Not an "Response" object was returned`);
         }
 
         if (response.headers.get('Content-Type') !== 'text/html') {

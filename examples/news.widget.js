@@ -34,10 +34,16 @@ export async function response({ data }) {
   });
 }
 
-export async function mount({ container, data, parameters }) {
-  if (typeof parameters.hydrateonly === 'undefined') {
-    const body = await response({ data });
-    container.innerHTML = await body.text();
+export async function bootstrap({ data, parameters  }) {
+  if (typeof parameters .hydrateonly === 'undefined') {
+    // 模拟预加载等待
+    this.$body = await (await response({ data })).text();
+  }
+}
+
+export async function mount({ container, data, parameters  }) {
+  if (typeof parameters .hydrateonly === 'undefined') {
+    container.innerHTML = this.$body;
   } else {
     console.log('已经被服务端渲染');
   }

@@ -35,6 +35,16 @@ export default () => {
           file: 'dist/esm/web-router.js',
           format: 'esm',
           sourcemap: true
+        },
+        {
+          file: 'dist/cjs/web-router.js',
+          format: 'cjs',
+          sourcemap: true
+        },
+        {
+          file: 'dist/system/web-router.js',
+          format: 'system',
+          sourcemap: true
         }
       ],
       plugins

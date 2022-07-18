@@ -59,19 +59,23 @@ async function transformElementRoute({
       if (transform.element === localName) {
         const data = {};
         const timeout = transform.timeout || 2000;
-        const transformed = await reasonableTime(transform.transform.call(
-          {
-            html, unsafeHTML,
-            provider,
-            error(error) {
-              console.error(error);
+        const transformed = await reasonableTime(
+          transform.transform.call(
+            {
+              html,
+              unsafeHTML,
+              provider,
+              error(error) {
+                console.error(error);
+              },
+              emitData(name, value) {
+                data[name] = value;
+              }
             },
-            emitData(name, value) {
-              data[name] = value;
-            }
-          },
-          ...results
-        ), timeout).catch((error) => {
+            ...results
+          ),
+          timeout
+        ).catch(error => {
           console.error(error);
           return null;
         });
@@ -101,8 +105,7 @@ async function transformElementRoute({
 
 async function transformResourceRoute({ match, provider }) {
   const url = match.route.import;
-  const app = await import(url);
-  const context = {};
+  const module = await import(url);
   const parameters = {
     ...getRouteArgs(match)
   };
@@ -110,37 +113,32 @@ async function transformResourceRoute({ match, provider }) {
     ...provider,
     meta: null,
     data: null,
-    context,
     parameters
   };
-  const lifecycles = app.default ? app.default(dependencies) : app;
+  const lifecycles = { ...module };
 
   if (typeof lifecycles.data === 'function') {
-    const data = await lifecycles.data.call(context, dependencies);
+    const data = await lifecycles.data(dependencies);
     if (data) {
       dependencies.data = data;
     }
   }
 
   if (typeof lifecycles.meta === 'function') {
-    const meta = await lifecycles.meta.call(context, dependencies);
+    const meta = await lifecycles.meta(dependencies);
     if (meta) {
       dependencies.meta = meta;
     }
   }
 
   if (typeof lifecycles.response !== 'function') {
-    throw new TypeError(
-      `Module does not export "response" function: ${url}`
-    );
+    throw new TypeError(`Module does not export "response" function: ${url}`);
   }
 
-  const response = await lifecycles.response.call(context, dependencies);
+  const response = await lifecycles.response(dependencies);
 
   if (!(response instanceof Response)) {
-    throw new TypeError(
-      `Not an "Response" object was returned: ${url}`
-    );
+    throw new TypeError(`Not an "Response" object was returned: ${url}`);
   }
 
   return response;

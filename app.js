@@ -10,7 +10,7 @@ const importmap = {
     "vue": "https://unpkg.com/vue@2.6.14/dist/vue.js",
     "vue-router": "https://unpkg.com/vue-router@3.5.2/dist/vue-router.js",
     '@web-widget/container':
-      'https://unpkg.com/@web-widget/container@0.0.27/dist/esm/main.js',
+      'https://unpkg.com/@web-widget/container@1.0.0-alpha.1/dist/esm/web-widget.js',
     '@ungap/custom-elements':
       'https://unpkg.com/@ungap/custom-elements@1.1.0/es.js',
     '@growing-web/web-router': '/dist/esm/web-router.js',
@@ -100,11 +100,11 @@ const routemap = {
   ]
 };
 
-function handler(request) {
+ async function handler(request) {
   const { pathname } = new URL(request.url);
 
   // 演示用的静态文件目录
-  if (pathname.indexOf('/examples/') === 0 || pathname.indexOf('/dist/') === 0) {
+  if (/^\/(examples|dist|node_modules)\//.test(pathname)) {
     const url = `${import.meta.url.replace(/\/[^\/]+$/, '')}${pathname}`;
     return fetch(url).then(res => {
       return new Response(res.body, {

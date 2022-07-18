@@ -11,22 +11,29 @@ export async function meta() {
 }
 
 export async function response({ request, meta = {}, data = {} }) {
-  return new Response(`
-  <main>
-    <h3>About</h3>
+  let c = '';
+  for (let i = 0; i < 50; i ++) {
+    c += `
     <pre>request.url: ${request?.url}</pre>
     <pre>meta: ${JSON.stringify(meta, null, 2)}</pre>
     <pre>data: ${JSON.stringify(data, null, 2)}</pre>
-    <p><a href="/about/download">download</a><p>
+    <p><a href="/about/download">download</a><p></p>
+    `;
+  }
+  
+  return new Response(`
+  <main>
+    <h3>About</h3>
+    ${c}
   </main>`, {
     headers: { 'Content-Type': 'text/html' }
   });
 }
 
-export async function mount({ data, container, parameters }) {
+export async function mount({ data, container, parameters  }) {
   console.log('About mount');
 
-  if (typeof parameters.hydrateonly === 'undefined') {
+  if (typeof parameters .hydrateonly === 'undefined') {
     const body = await response({ data });
     container.innerHTML = await body.text();
   } else {

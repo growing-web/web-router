@@ -78,6 +78,8 @@ export class HTMLWebRouterElement extends HTMLElement {
 
     if (!this.hasAttribute('hydrateonly')) {
       render();
+    } else {
+      this.removeAttribute('hydrateonly');
     }
   }
 
@@ -150,11 +152,11 @@ export class HTMLWebRouterElement extends HTMLElement {
     await (this[RENDER] = task(asyncElements.map(element => element.load())));
 
     // Display widget title
-    document.title =
-      matches
-        .map(({ route }) => route.title)
-        .filter(title => typeof title === 'string')
-        .pop() || document.title;
+    // document.title =
+    //   matches
+    //     .map(({ route }) => route.title)
+    //     .filter(title => typeof title === 'string')
+    //     .pop() || document.title;
 
     // Initialize the next widget
     await (this[RENDER] = task(

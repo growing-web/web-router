@@ -35,8 +35,8 @@ export async function response({ data }) {
   // });
 }
 
-export async function mount({ container, data, parameters }) {
-  if (typeof parameters.hydrateonly === 'undefined') {
+export async function mount({ container, data, parameters  }) {
+  if (typeof parameters .hydrateonly === 'undefined') {
     const body = await response({ data });
     container.innerHTML = await body.text();
   } else {
