@@ -16,11 +16,11 @@ export async function response() {
       }
     </style>
     <nav>
-      <a is="web-link" href="/">Home</a> |
+      <a is="web-link" href="/?xxxx#abcd">Home</a> |
       <a is="web-link" href="/news">News</a> |
       <a is="web-link" href="/about">About</a> |
       <a is="web-link" href="/vue-router">Vue router</a> |
-      <a is="web-link" href="https://google.com">Google</a> |
+      <a href="https://google.com">Google</a> |
       <a is="web-link" href="/404">404</a>  |
       <button onclick="WebRouter.navigate('https://google.com')">button</button>
     </nav>

@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-globals */
 /* global window, document, location, customElements, HTMLAnchorElement */
 import { WebRouter } from './WebRouter.js';
-import { history } from './history.js';
+import { history, createPath, parsePath } from './history.js';
 
 const STATE = Symbol('state');
 const HANDLE_CLICK = Symbol('handle-click');
@@ -88,13 +88,13 @@ export class HTMLWebLinkElement extends HTMLAnchorElement {
 
   connectedCallback() {
     this.addEventListener('click', this[HANDLE_CLICK]);
-    window.addEventListener('navigationstart', this[HANDLE_NAVIGATION]);
+    window.addEventListener('navigationend', this[HANDLE_NAVIGATION]);
     this[HANDLE_NAVIGATION]();
   }
 
   disconnectedCallback() {
     this.removeEventListener('click', this[HANDLE_CLICK]);
-    window.removeEventListener('navigationstart', this[HANDLE_NAVIGATION]);
+    window.removeEventListener('navigationend', this[HANDLE_NAVIGATION]);
   }
 
   attributeChangedCallback(name) {
@@ -104,15 +104,18 @@ export class HTMLWebLinkElement extends HTMLAnchorElement {
   }
 
   [HANDLE_CLICK](event) {
-    const to = this.pathname;
-    const isRoutePath =
-      this[SAME_ORIGIN]() &&
-      [...document.querySelectorAll('web-router')].some(
-        router => !!router.matchRoutes(this.pathname)
-      );
-    if (isRoutePath) {
-      WebRouter.navigate(to, {
-        replace: this.replace,
+    const location = history.location;
+    const target = this.target;
+    const isMainButton = event.button === 0;
+    const isDefaultPrevented = event.defaultPrevented;
+    const isSelf = !target || target === '_self';
+    const isModifiedEvent = !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
+    const { pathname, hash, search } = parsePath(this.href);
+
+    if (isMainButton && !isDefaultPrevented && isSelf && !isModifiedEvent) {
+      const replace = !!this.replace || createPath(location) === createPath({ pathname, hash, search });
+      WebRouter.navigate({ pathname, hash, search }, {
+        replace,
         state: this.state
       });
       event.preventDefault();

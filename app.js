@@ -32,7 +32,8 @@ const routemap = {
       path: '/',
       element: 'web-widget',
       attributes: {
-        import: '@examples/layout'
+        import: '@examples/layout',
+        //rendertarget: 'light'
       },
       children: [
         {
@@ -110,6 +111,7 @@ const routemap = {
       return new Response(res.body, {
         headers: {
           'content-type': 'application/javascript',
+          'access-control-allow-origin': '*'
         },
       });
     });

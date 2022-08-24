@@ -96,25 +96,23 @@ export class HTMLWebRouterElement extends HTMLElement {
   }
 
   async [CHANGE]({ location }) {
-    if (!this[LOCATION] || this[LOCATION].pathname !== location.pathname) {
-      const matches = this.matchRoutes(location.pathname);
+    const matches = this.matchRoutes(location.pathname);
 
-      if (matches) {
-        const oldPathname = this[LOCATION]?.pathname;
-        const newPathname = location.pathname;
-        const state = location.state;
-        const eventInit = { oldPathname, newPathname, state };
+    if (matches) {
+      const oldPathname = this[LOCATION]?.pathname;
+      const newPathname = location.pathname;
+      const state = location.state;
+      const eventInit = { oldPathname, newPathname, state };
 
-        this[LOCATION] = location;
-        dispatchNavigationChangeEvent('navigationstart', eventInit);
-        try {
-          await this.renderMatches(matches);
-        } catch (error) {
-          dispatchNavigationChangeEvent('navigationerror', eventInit);
-          throw error;
-        }
-        dispatchNavigationChangeEvent('navigationend', eventInit);
+      this[LOCATION] = location;
+      dispatchNavigationChangeEvent('navigationstart', eventInit);
+      try {
+        await this.renderMatches(matches);
+      } catch (error) {
+        dispatchNavigationChangeEvent('navigationerror', eventInit);
+        throw error;
       }
+      dispatchNavigationChangeEvent('navigationend', eventInit);
     }
   }
 
