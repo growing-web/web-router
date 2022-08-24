@@ -13,6 +13,7 @@ const importmap = {
       'https://unpkg.com/@web-widget/container@1.0.0-alpha.1/dist/esm/web-widget.js',
     '@ungap/custom-elements':
       'https://unpkg.com/@ungap/custom-elements@1.1.0/es.js',
+    'es-module-shims': 'https://unpkg.com/es-module-shims@1.5.17/dist/es-module-shims.js',
     '@growing-web/web-router': '/dist/esm/web-router.js',
     '@examples/bootstrap': '/examples/bootstrap.js',
     "@examples/layout": "/examples/layout.widget.js",
@@ -23,6 +24,7 @@ const importmap = {
     "@examples/vue-router": "/examples/vue-router.widget.js?v=34",
     "@examples/404": "/examples/404.widget.js?v=32",
     "@examples/download": "/examples/download.js",
+
   }
 };
 

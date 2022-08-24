@@ -210,7 +210,9 @@ export async function router({
           importmap,
           routemap,
           meta,
-          outlet
+          outlet,
+          links: meta.links || [],
+          scripts: {}
         })
       : outlet;
 

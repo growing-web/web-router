@@ -33,16 +33,7 @@ export function Meta(meta) {
       }
 
       if (isLinkTag) {
-        return value.map(link =>
-          unsafeHTML(
-            `<link ${Object.entries(link)
-              .map(
-                ([attrName, attrValue]) =>
-                  `${attributeName(attrName)}="${attributeValue(attrValue)}"`
-              )
-              .join(' ')} />`
-          )
-        );
+        return Links(value);
       }
 
       if (typeof content === 'string') {
@@ -61,6 +52,19 @@ export function Meta(meta) {
   });
 }
 
+export function Links(links) {
+  return links.map(link =>
+    unsafeHTML(
+      `<link ${Object.entries(link)
+        .map(
+          ([attrName, attrValue]) =>
+            `${attributeName(attrName)}="${attributeValue(attrValue)}"`
+        )
+        .join(' ')} />`
+    )
+  )
+}
+
 export function Outlet(outlet) {
   return html`<web-router hydrateonly>${outlet}</web-router>`;
 }
@@ -72,9 +76,9 @@ export function Routemap(routemap) {
 }
 
 export function Scripts({
-  entry,
-  customElementPolyfillUrl = 'https://unpkg.com/@ungap/custom-elements@1.1.0/es.js',
-  esModulePolyfillUrl = 'https://unpkg.com/es-module-shims@1.5.17/dist/es-module-shims.js'
+  bootstrap,
+  customElementPolyfill,
+  esModulePolyfill
 } = {}) {
   return html`
     <!-- Scroll Restoration -->
@@ -142,7 +146,7 @@ export function Scripts({
         ) {
           document.head.appendChild(
             Object.assign(document.createElement('script'), {
-              src: ${unsafeHTML(JSON.stringify(customElementPolyfillUrl))},
+              src: ${unsafeHTML(JSON.stringify(customElementPolyfill))},
               crossorigin: 'anonymous',
               async: true
             })
@@ -158,16 +162,16 @@ export function Scripts({
       ) {
         document.head.appendChild(
           Object.assign(document.createElement('script'), {
-            src: ${unsafeHTML(JSON.stringify(esModulePolyfillUrl))},
+            src: ${unsafeHTML(JSON.stringify(esModulePolyfill))},
             crossorigin: 'anonymous',
             async: true,
             onload() {
-              importShim(${unsafeHTML(JSON.stringify(entry))});
+              importShim(${unsafeHTML(JSON.stringify(bootstrap))});
             }
           })
         );
       } else {
-        import(${unsafeHTML(JSON.stringify(entry))});
+        import(${unsafeHTML(JSON.stringify(bootstrap))});
       }
     </script>
   `;

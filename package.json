@@ -57,6 +57,7 @@
   "dependencies": {
     "@worker-tools/html": "^2.0.0-pre.13",
     "history": "^5.2.0",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.21",
+    "@jspm/import-map": "^1.0.4"
   }
 }
