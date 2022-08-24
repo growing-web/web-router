@@ -33,7 +33,7 @@ export function Meta(meta) {
       }
 
       if (isLinkTag) {
-        return '';//Links(value);
+        return ''; //Links(value);
       }
 
       if (typeof content === 'string') {
@@ -62,7 +62,7 @@ export function Links(links) {
         )
         .join(' ')} />`
     )
-  )
+  );
 }
 
 export function Outlet(outlet) {
@@ -81,27 +81,36 @@ export function Scripts({
   esModulePolyfill
 } = {}) {
   return html`
-    <!-- Scroll Restoration -->
     <script>
-      (SCROLL_POSITIONS => {
-        if (!window.history.state || !window.history.state.key) {
-          let key = Math.random().toString(32).slice(2);
-          window.history.replaceState({ key }, '');
+      window.__WEBROUTER__ = ${unsafeHTML(
+        JSON.stringify({
+          scrollPositions: SCROLL_POSITIONS,
+          esModulePolyfill: esModulePolyfill,
+          bootstrap: bootstrap
+        })
+      )};
+
+      /* Scroll Restoration */
+
+      if (!window.history.state || !window.history.state.key) {
+        let key = Math.random().toString(32).slice(2);
+        window.history.replaceState({ key }, '');
+      }
+      try {
+        let positions = JSON.parse(
+          sessionStorage.getItem(__WEBROUTER__.scrollPositions) || '{}'
+        );
+        let storedY = positions[window.history.state.key];
+        if (typeof storedY === 'number') {
+          window.scrollTo(0, storedY);
         }
-        try {
-          let positions = JSON.parse(sessionStorage.getItem(SCROLL_POSITIONS) || '{}');
-          let storedY = positions[window.history.state.key];
-          if (typeof storedY === 'number') {
-            window.scrollTo(0, storedY);
-          }
-        } catch (error) {
-          console.error(error);
-          sessionStorage.removeItem(SCROLL_POSITIONS);
-        }
-      })(${unsafeHTML(JSON.stringify(SCROLL_POSITIONS))});
-    </script>
-    <!-- Polyfill: Declarative Shadow DOM -->
-    <script>
+      } catch (error) {
+        console.error(error);
+        sessionStorage.removeItem(__WEBROUTER__.scrollPositions);
+      }
+
+      /* Polyfill: Declarative Shadow DOM */
+
       (function attachShadowRoots(root) {
         root.querySelectorAll('template[shadowroot]').forEach(template => {
           const mode = template.getAttribute('shadowroot');
@@ -130,9 +139,9 @@ export function Scripts({
           attachShadowRoots(shadowRoot);
         });
       })(document);
-    </script>
-    <!-- Polyfill: Custom Elements -->
-    <script>
+
+      /* Polyfill: Custom Elements */
+
       if (window.customElements) {
         customElements.define(
           'check-builtin',
@@ -146,35 +155,33 @@ export function Scripts({
         ) {
           document.head.appendChild(
             Object.assign(document.createElement('script'), {
-              src: ${unsafeHTML(JSON.stringify(customElementPolyfill))},
+              src: __WEBROUTER__.customElementPolyfill,
               crossorigin: 'anonymous',
               async: true
             })
           );
         }
       }
-    </script>
-    <!-- Polyfill: Import Maps -->
-    <script>
-      ((esModulePolyfill, bootstrap) => {
-        if (
+
+      /* Polyfill: Import Maps */
+
+      if (
         !HTMLScriptElement.supports ||
         !HTMLScriptElement.supports('importmap')
       ) {
         document.head.appendChild(
           Object.assign(document.createElement('script'), {
-            src: esModulePolyfill,
+            src: __WEBROUTER__.esModulePolyfill,
             crossorigin: 'anonymous',
             async: true,
             onload() {
-              importShim(bootstrap);
+              importShim(__WEBROUTER__.bootstrap);
             }
           })
         );
       } else {
-        import(bootstrap);
+        import(__WEBROUTER__.bootstrap);
       }
-      })(${unsafeHTML(JSON.stringify(esModulePolyfill))}, ${unsafeHTML(JSON.stringify(bootstrap))});
     </script>
   `;
 }
