@@ -1,5 +1,6 @@
 import { html, HTMLResponse, unsafeHTML } from '@worker-tools/html';
 import defaultsDeep from 'lodash-es/defaultsDeep.js';
+import { ImportMap } from '@jspm/import-map';
 import { matchRoutes } from '../isomorphic/matchRoutes.js';
 
 export { html, unsafeHTML };
@@ -45,6 +46,7 @@ async function transformElementRoute({
   outlet,
   dataset,
   transforms,
+  importMapResolve,
   provider
 }) {
   const localName = match.route.element;
@@ -64,6 +66,7 @@ async function transformElementRoute({
             {
               html,
               unsafeHTML,
+              importMapResolve,
               provider,
               error(error) {
                 console.error(error);
@@ -148,7 +151,7 @@ async function transformEmptyRoute({ outlet }) {
   return (await outlet) || html``;
 }
 
-async function transformRoute(matches, transforms, provider) {
+async function transformRoute(matches, transforms, importMapResolve, provider) {
   if (matches == null) return null;
   let outlet;
   let type = 'element';
@@ -165,6 +168,7 @@ async function transformRoute(matches, transforms, provider) {
         outlet,
         dataset,
         transforms,
+        importMapResolve,
         provider
       });
     } else if (match.route.import && index === lastIndex) {
@@ -184,12 +188,20 @@ export async function router({
   layout,
   routemap = { routes: {} },
   importmap = { imports: {} },
+  bootstrap,
+  customElementPolyfill = '@ungap/custom-elements',
+  esModulePolyfill = 'es-module-shims',
   transforms = []
 }) {
   try {
     const { pathname } = new URL(request.url);
     const matches = matchRoutes(routemap.routes, pathname);
-    const results = await transformRoute(matches, transforms, { request });
+    const map = new ImportMap({
+      mapUrl: request.url,
+      map: importmap
+    });
+    const importMapResolve = module => map.resolve(module);
+    const results = await transformRoute(matches, transforms, importMapResolve, { request });
 
     if (!results) {
       return new Response(null, {
@@ -199,11 +211,23 @@ export async function router({
     }
 
     const { outlet, type, dataset } = results;
-    const { meta = {} } = dataset;
 
     if (type === 'resource') {
       return outlet;
     }
+
+    const { meta = {} } = dataset;
+    const links = meta.links || [];
+    const scripts = {
+      bootstrap: importMapResolve(bootstrap),
+      customElementPolyfill: importMapResolve(customElementPolyfill),
+      esModulePolyfill: importMapResolve(esModulePolyfill)
+    };
+
+    links.unshift({
+      rel: 'modulepreload',
+      href: importMapResolve(bootstrap)
+    });
 
     const content = layout
       ? layout({
@@ -211,8 +235,8 @@ export async function router({
           routemap,
           meta,
           outlet,
-          links: meta.links || [],
-          scripts: {}
+          links,
+          scripts
         })
       : outlet;
 

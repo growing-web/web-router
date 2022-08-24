@@ -33,7 +33,7 @@ export function Meta(meta) {
       }
 
       if (isLinkTag) {
-        return Links(value);
+        return '';//Links(value);
       }
 
       if (typeof content === 'string') {
@@ -156,23 +156,25 @@ export function Scripts({
     </script>
     <!-- Polyfill: Import Maps -->
     <script>
-      if (
+      ((esModulePolyfill, bootstrap) => {
+        if (
         !HTMLScriptElement.supports ||
         !HTMLScriptElement.supports('importmap')
       ) {
         document.head.appendChild(
           Object.assign(document.createElement('script'), {
-            src: ${unsafeHTML(JSON.stringify(esModulePolyfill))},
+            src: esModulePolyfill,
             crossorigin: 'anonymous',
             async: true,
             onload() {
-              importShim(${unsafeHTML(JSON.stringify(bootstrap))});
+              importShim(bootstrap);
             }
           })
         );
       } else {
-        import(${unsafeHTML(JSON.stringify(bootstrap))});
+        import(bootstrap);
       }
+      })(${unsafeHTML(JSON.stringify(esModulePolyfill))}, ${unsafeHTML(JSON.stringify(bootstrap))});
     </script>
   `;
 }

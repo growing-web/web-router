@@ -1,9 +1,10 @@
+import { ImportMap } from '@jspm/import-map';
 export default function webWidget({ timeout = 2000 } = {}) {
   return {
     element: 'web-widget',
     timeout,
     async transform(attributes, outlet) {
-      const { html, unsafeHTML } = this;
+      const { html, unsafeHTML, importMapResolve } = this;
       const clientonly = typeof attributes['clientonly'] === 'string';
       const hydrateonly = typeof attributes['hydrateonly'] === 'string';
       const rendertarget = attributes['rendertarget'] || 'shadow';
@@ -18,6 +19,11 @@ export default function webWidget({ timeout = 2000 } = {}) {
         let module = await import(
           /* @vite-ignore */ /* webpackIgnore: true */ url
         );
+        const modulepreload = 
+          {
+            rel: 'modulepreload',
+            href: importMapResolve(url)
+          };
         const parameters = attributes;
         const dependencies = {
           ...this.provider,
@@ -40,8 +46,19 @@ export default function webWidget({ timeout = 2000 } = {}) {
           const meta = await lifecycles.meta(dependencies);
           if (meta) {
             dependencies.meta = meta;
+
+            if (meta.links) {
+              meta.links.push(modulepreload);
+            } else {
+              meta.links = [modulepreload];
+            }
+
             this.emitData('meta', meta);
           }
+        } else {
+          this.emitData('meta', {
+            links: [modulepreload]
+          });
         }
 
         if (typeof lifecycles.response !== 'function') {

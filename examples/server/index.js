@@ -125,6 +125,9 @@ const routemap = {
     routemap,
     importmap,
     layout,
+    bootstrap: '@examples/bootstrap',
+    customElementPolyfill: '@ungap/custom-elements',
+    esModulePolyfill: 'es-module-shims',
     transforms: [webWidget()]
   });
 }
