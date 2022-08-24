@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.146.0/http/server.ts';
-import { router } from './src/server/index.js';
-import webWidget from './src/server/plugins/webWidget.js';
+import { router } from '../../src/server/index.js';
+import webWidget from '../../src/server/plugins/webWidget.js';
 // import { router } from './dist/esm/web-router.server.js';
 // import webWidget from './dist/esm/web-widget.server.js';
 import layout from './layout.js';
@@ -15,15 +15,15 @@ const importmap = {
       'https://unpkg.com/@ungap/custom-elements@1.1.0/es.js',
     'es-module-shims': 'https://unpkg.com/es-module-shims@1.5.17/dist/es-module-shims.js',
     '@growing-web/web-router': '/dist/esm/web-router.js',
-    '@examples/bootstrap': '/examples/bootstrap.js',
-    "@examples/layout": "/examples/layout.widget.js",
-    "@examples/nav": "/examples/nav.widget.js",
-    "@examples/home": "/examples/index.widget.js",
-    "@examples/news": "/examples/news.widget.js",
-    "@examples/about": "/examples/about.widget.js?v=3",
-    "@examples/vue-router": "/examples/vue-router.widget.js?v=34",
-    "@examples/404": "/examples/404.widget.js?v=32",
-    "@examples/download": "/examples/download.js",
+    '@examples/bootstrap': '/examples/client/bootstrap.js',
+    "@examples/layout": "/examples/client/layout.widget.js",
+    "@examples/nav": "/examples/client/nav.widget.js",
+    "@examples/home": "/examples/client/index.widget.js",
+    "@examples/news": "/examples/client/news.widget.js",
+    "@examples/about": "/examples/client/about.widget.js?v=3",
+    "@examples/vue-router": "/examples/client/vue-router.widget.js?v=34",
+    "@examples/404": "/examples/client/404.widget.js?v=32",
+    "@examples/download": "/examples/client/download.js",
 
   }
 };
@@ -107,8 +107,9 @@ const routemap = {
   const { pathname } = new URL(request.url);
 
   // 演示用的静态文件目录
-  if (/^\/(examples|dist|node_modules)\//.test(pathname)) {
-    const url = `${import.meta.url.replace(/\/[^\/]+$/, '')}${pathname}`;
+  if (/^\/(examples\/client|dist)\//.test(pathname)) {
+    const wd = new URL('../../', import.meta.url).pathname;
+    const url = `file://${wd}${pathname.replace(/^\//, '')}`;
     return fetch(url).then(res => {
       return new Response(res.body, {
         headers: {

@@ -7,7 +7,7 @@ import {
   Outlet,
   Routemap,
   Scripts
-} from './src/server/index.js';
+} from '../../src/server/index.js';
 
 export default ({ importmap, routemap, meta, links, outlet }) => {
   const map = new ImportMap({

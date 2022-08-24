@@ -1,0 +1,29 @@
+{
+  "imports": {
+    "vue": "https://unpkg.com/vue@2.6.14/dist/vue.js",
+    "vue-router": "https://unpkg.com/vue-router@3.5.2/dist/vue-router.js",
+    "@web-widget/container": "https://unpkg.com/@web-widget/container@1.0.0-alpha.1/dist/esm/web-widget.js",
+    "@ungap/custom-elements": "https://unpkg.com/@ungap/custom-elements@1.1.0/es.js",
+    "es-module-shims": "https://unpkg.com/es-module-shims@1.5.17/dist/es-module-shims.js",
+    "@growing-web/web-router": "../../dist/esm/web-router.js",
+    "@examples/bootstrap": "../client/bootstrap.js",
+    "@examples/layout": "../client/layout.widget.js",
+    "@examples/home": "../client/index.widget.js",
+    "@examples/news": "../client/news.widget.js",
+    "@examples/about": "../client/about.widget.js?v=3",
+    "@examples/vue-router": "../client/vue-router.widget.js?v=34",
+    "@examples/404": "../client/404.widget.js?v=32",
+    "@examples/download": "../client/download.js",
+
+    "@worker-tools/stream-response": "../../node_modules/@worker-tools/stream-response/esm/index.js",
+    "whatwg-stream-to-async-iter": "../../node_modules/whatwg-stream-to-async-iter/index.js",
+    "@worker-tools/html": "../../node_modules/@worker-tools/html/esm/index.js",
+    "typed-array-utils": "../../node_modules/typed-array-utils/esm/index.js",
+    "lodash-es/": "../../node_modules/lodash-es/",
+    "lodash-es": "../../node_modules/lodash-es/lodash.js",
+    "history/": "../../node_modules/history/",
+    "history": "../../node_modules/history/index.js",
+    "@jspm/import-map": "../../node_modules/@jspm/import-map/dist/map.js"
+  },
+  "scopes": {}
+}
