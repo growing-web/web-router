@@ -84,9 +84,10 @@ export function Scripts({
     <script>
       window.__WEBROUTER__ = ${unsafeHTML(
         JSON.stringify({
-          scrollPositions: SCROLL_POSITIONS,
-          esModulePolyfill: esModulePolyfill,
-          bootstrap: bootstrap
+          bootstrap,
+          customElementPolyfill,
+          esModulePolyfill,
+          scrollPositions: SCROLL_POSITIONS
         })
       )};
 
