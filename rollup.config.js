@@ -18,13 +18,26 @@ export default () => {
     ...(isProduction
       ? [
           minifyHTML(),
+        ]
+      : []),
+    commonjs()
+  ];
+
+  const clientPlugins = [
+    ...plugins,
+    ...(isProduction
+      ? [
           terser({
             keep_classnames: true
           })
         ]
       : []),
-    nodeResolve(),
-    commonjs()
+    nodeResolve()
+  ];
+
+  // TODO @worker-tools/html 打包后无法正常工作（它将 HTML 字符串都以实体输出了）
+  const serverPlugins = [
+    ...plugins
   ];
 
   return [
@@ -47,7 +60,7 @@ export default () => {
           sourcemap: true
         }
       ],
-      plugins
+      plugins: clientPlugins
     },
     {
       input: 'src/server/index.js',
@@ -61,7 +74,7 @@ export default () => {
           sourcemap: true
         }
       ],
-      plugins
+      plugins: serverPlugins
     },
     {
       input: 'src/server/plugins/webWidget.js',
@@ -72,7 +85,7 @@ export default () => {
           sourcemap: true
         }
       ],
-      plugins
+      plugins: serverPlugins
     }
   ];
 };

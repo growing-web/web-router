@@ -1,4 +1,3 @@
-import { ImportMap } from '@jspm/import-map';
 export default function webWidget({ timeout = 2000 } = {}) {
   return {
     element: 'web-widget',

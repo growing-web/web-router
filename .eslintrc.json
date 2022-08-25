@@ -1,9 +1,7 @@
 {
   "extends": ["airbnb-base", "prettier"],
   "root": true,
-  "env": {
-    "deno": true
-  },
+  "env": {},
   "parser": "@babel/eslint-parser",
   "parserOptions": {
     "ecmaVersion": 2018,
@@ -43,13 +41,9 @@
     "no-multi-assign": "off"
   },
   "overrides": [{
-    "files": ["packages/**/test/**/*.js", "packages/**/examples/**/*.js"],
+    "files": ["examples/server/*.js"],
     "env": {
-      "amd": false,
-      "browser": true,
-      "es6": true,
-      "node": false,
-      "mocha": true
+      "deno": true
     },
     "globals": {
       "System": true
