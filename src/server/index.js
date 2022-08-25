@@ -201,7 +201,7 @@ export async function router({
       map: importmap
     });
     const importMapResolve = module => map.resolve(module);
-    const results = await transformRoute(matches, transforms, importMapResolve, { request });
+    const results = await transformRoute(matches, transforms, importMapResolve, request);
 
     if (!results) {
       return new Response(null, {
