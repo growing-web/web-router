@@ -3,11 +3,13 @@ export default function webWidget({ timeout = 2000 } = {}) {
     element: 'web-widget',
     timeout,
     async transform(attributes, outlet) {
-      const { html, unsafeHTML, importMapResolve } = this;
+      const { html, unsafeHTML, importMapResolve, request } = this;
       const clientonly = typeof attributes['clientonly'] === 'string';
       const hydrateonly = typeof attributes['hydrateonly'] === 'string';
       const rendertarget = attributes['rendertarget'] || 'shadow';
-      const url = attributes['import'] || attributes['src'];
+      const url =
+        attributes['import'] ||
+        (attributes['src'] && new URL(attributes['src'], request.url).href);
       const ssr = !clientonly && !hydrateonly && url;
 
       if (!ssr) {
@@ -18,14 +20,13 @@ export default function webWidget({ timeout = 2000 } = {}) {
         let module = await import(
           /* @vite-ignore */ /* webpackIgnore: true */ url
         );
-        const modulepreload = 
-          {
-            rel: 'modulepreload',
-            href: importMapResolve(url)
-          };
+        const modulepreload = {
+          rel: 'modulepreload',
+          href: importMapResolve(url)
+        };
         const parameters = attributes;
         const dependencies = {
-          ...this.provider,
+          request,
           meta: null,
           data: null,
           parameters

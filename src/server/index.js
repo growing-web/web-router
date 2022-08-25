@@ -47,7 +47,7 @@ async function transformElementRoute({
   dataset,
   transforms,
   importMapResolve,
-  provider
+  request
 }) {
   const localName = match.route.element;
   const attributes = {
@@ -67,7 +67,7 @@ async function transformElementRoute({
               html,
               unsafeHTML,
               importMapResolve,
-              provider,
+              request,
               error(error) {
                 console.error(error);
               },
@@ -106,14 +106,14 @@ async function transformElementRoute({
   return html`${startTag}${await results[1]}${endTag}`;
 }
 
-async function transformResourceRoute({ match, provider }) {
+async function transformResourceRoute({ match, request }) {
   const url = match.route.import;
   const module = await import(url);
   const parameters = {
     ...getRouteArgs(match)
   };
   const dependencies = {
-    ...provider,
+    request,
     meta: null,
     data: null,
     parameters
@@ -151,7 +151,7 @@ async function transformEmptyRoute({ outlet }) {
   return (await outlet) || html``;
 }
 
-async function transformRoute(matches, transforms, importMapResolve, provider) {
+async function transformRoute(matches, transforms, importMapResolve, request) {
   if (matches == null) return null;
   let outlet;
   let type = 'element';
@@ -169,10 +169,10 @@ async function transformRoute(matches, transforms, importMapResolve, provider) {
         dataset,
         transforms,
         importMapResolve,
-        provider
+        request
       });
     } else if (match.route.import && index === lastIndex) {
-      outlet = await transformResourceRoute({ match, provider });
+      outlet = await transformResourceRoute({ match, request });
       type = 'resource';
       break;
     } else {
