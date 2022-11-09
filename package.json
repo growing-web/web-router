@@ -55,9 +55,9 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "dependencies": {
+    "@jspm/import-map": "^1.0.4",
     "@worker-tools/html": "^2.0.0-pre.13",
     "history": "^5.2.0",
-    "lodash-es": "^4.17.21",
-    "@jspm/import-map": "^1.0.4"
+    "lodash-es": "^4.17.21"
   }
 }
