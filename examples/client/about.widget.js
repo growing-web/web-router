@@ -30,6 +30,10 @@ export async function response({ request, meta = {}, data = {} }) {
   });
 }
 
+// export async function bootstrap({ container }) {
+//   await new Promise(() => {});
+// }
+
 export async function mount({ data, container, parameters  }) {
   console.log('About mount');
 

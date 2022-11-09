@@ -16,9 +16,8 @@ export default ({ importmap, routemap, meta, links, scripts, outlet }) => html`<
       title: 'The default title',
       ...meta
     })}
-    ${Links(links)}
     ${Importmap(importmap)}
-
+    ${Links(links)}
     <style>
       body {
         margin: 0;

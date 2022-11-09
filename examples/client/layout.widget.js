@@ -22,7 +22,8 @@ export async function response() {
       <a is="web-link" href="/vue-router">Vue router</a> |
       <a href="https://google.com">Google</a> |
       <a is="web-link" href="/404">404</a>  |
-      <button onclick="WebRouter.navigate('https://google.com')">button</button>
+      <button onclick="WebRouter.navigate('/about')">button</button>
+      <input />
     </nav>
     <main>
       <slot></slot>

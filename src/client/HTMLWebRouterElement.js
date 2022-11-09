@@ -39,17 +39,24 @@ function makeTrashable(promise) {
   return wrappedPromise;
 }
 
-function reasonableTime(promise, timeout, ignore) {
+function reasonableTime(promise, timeout) {
   return new Promise((resolve, reject) => {
     promise.then(
       () => resolve(promise),
       error => reject(error)
     );
-    setTimeout(
-      () => (ignore ? resolve() : reject(new Error('Timeout'))),
-      timeout
-    );
+    setTimeout(() => reject(new Error('Timeout')), timeout);
   });
+}
+
+function runTasks(tasks, timeout) {
+  return makeTrashable(
+    timeout ? reasonableTime(Promise.all(tasks), timeout) : Promise.all(tasks)
+  );
+}
+
+function isAsyncElement(element) {
+  return element.load && element.bootstrap && element.mount && element.unload;
 }
 
 export class HTMLWebRouterElement extends HTMLElement {
@@ -121,68 +128,34 @@ export class HTMLWebRouterElement extends HTMLElement {
       this[RENDER].trash();
     }
 
-    const activePaths = matches.map(({ path }) => path);
-    const inactiveElements = [
-      ...this.outlet.querySelectorAll('[routepattern]')
-    ].filter(
-      element => !activePaths.includes(element.getAttribute('routepattern'))
-    );
+    const oldElement = this.outlet.querySelector('[routepattern]');
+    const oldElements = oldElement
+      ? [oldElement, ...oldElement.querySelectorAll('*')]
+      : [];
+    const oldAsyncElements = oldElements.filter(isAsyncElement);
+    const newElement = this.renderElements(matches);
+    const newElements = [newElement, ...newElement.querySelectorAll('*')];
+    const newAsyncElements = newElements.filter(isAsyncElement);
 
-    const element = this.renderElements(matches);
-    const flattenElements = [element, ...element.querySelectorAll('*')];
-    const asyncElementFilter = element =>
-      element.load && element.bootstrap && element.mount && element.unload;
-    const asyncElements = flattenElements.filter(asyncElementFilter);
-    const task = (tasks, timeout, ignore) =>
-      makeTrashable(
-        timeout
-          ? reasonableTime(Promise.all(tasks), timeout, ignore)
-          : Promise.all(tasks)
-      );
-
-    asyncElements.forEach(element => {
-      element.hidden = true;
-      element.setAttribute('inactive', '');
-    });
-    this.outlet.appendChild(element);
-
-    // Prefetch next widget file
-    await (this[RENDER] = task(asyncElements.map(element => element.load())));
-
-    // Display widget title
-    // document.title =
-    //   matches
-    //     .map(({ route }) => route.title)
-    //     .filter(title => typeof title === 'string')
-    //     .pop() || document.title;
-
-    // Initialize the next widget
-    await (this[RENDER] = task(
-      asyncElements.map(element => element.bootstrap())
+    await (this[RENDER] = runTasks(
+      newAsyncElements.map(element =>
+        element.load().then(() => element.bootstrap())
+      )
     ));
 
-    // Unload widget
-    await (this[RENDER] = task(
-      inactiveElements
-        .filter(asyncElementFilter)
-        .map(element => element.unload()),
-      1000,
-      true
+    await (this[RENDER] = runTasks(
+      oldAsyncElements.map(element =>
+        element.unmount().then(() => element.unload())
+      ),
+      2000
+    )).catch(() => console.error);
+
+    oldElement?.parentNode?.removeChild(oldElement);
+    this.outlet.appendChild(newElement);
+
+    await (this[RENDER] = runTasks(
+      newAsyncElements.map(element => element.mount())
     ));
-
-    inactiveElements.forEach(element => {
-      if (element.parentNode) {
-        element.parentNode.removeChild(element);
-      }
-    });
-
-    // Mount next widget
-    await (this[RENDER] = task(asyncElements.map(element => element.mount())));
-
-    asyncElements.forEach(element => {
-      element.hidden = false;
-      element.removeAttribute('inactive');
-    });
 
     delete this[RENDER];
   }

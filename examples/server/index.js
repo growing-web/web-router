@@ -1,16 +1,16 @@
 import { serve } from 'https://deno.land/std@0.146.0/http/server.ts';
 import layout from './layout.js';
-// import { router } from '../../src/server/index.js';
-// import webWidget from '../../src/server/plugins/webWidget.js';
-import { router } from '../../dist/esm/web-router.server.js';
-import webWidget from '../../dist/esm/web-widget.server.js';
+import { router } from '../../src/server/index.js';
+import webWidget from '../../src/server/plugins/webWidget.js';
+// import { router } from '../../dist/esm/web-router.server.js';
+// import webWidget from '../../dist/esm/web-widget.server.js';
 
 const importmap = {
   imports: {
     "vue": "https://unpkg.com/vue@2.6.14/dist/vue.js",
     "vue-router": "https://unpkg.com/vue-router@3.5.2/dist/vue-router.js",
     '@web-widget/container':
-      'https://unpkg.com/@web-widget/container@1.0.0-alpha.1/dist/esm/web-widget.js',
+      'https://unpkg.com/@web-widget/container@1.0.0-alpha.3/dist/esm/web-widget.js',
     '@ungap/custom-elements':
       'https://unpkg.com/@ungap/custom-elements@1.1.0/es.js',
     'es-module-shims': 'https://unpkg.com/es-module-shims@1.5.17/dist/es-module-shims.js',
