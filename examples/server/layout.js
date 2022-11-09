@@ -18,13 +18,9 @@ export default ({ importmap, routemap, meta, links, scripts, outlet }) => html`<
     })}
     ${Importmap(importmap)}
     ${Links(links)}
-    
     <style>
       body {
         margin: 0;
-      }
-      web-widget {
-        display: block;
       }
     </style>
   </head>
