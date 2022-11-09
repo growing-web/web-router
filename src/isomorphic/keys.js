@@ -1,0 +1,1 @@
+export const SCROLL_POSITIONS = 'router_scroll_positions';

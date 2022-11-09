@@ -1,0 +1,63 @@
+{
+  "name": "@growing-web/web-router",
+  "type": "module",
+  "version": "1.0.0-alpha.0",
+  "description": "web router",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/web-router.js",
+      "import": "./dist/esm/web-router.js"
+    },
+    "./server": {
+      "import": "./src/server/index.js"
+    },
+    "./server/web-widget": {
+      "import": "./src/server/plugins/webWidget.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && rollup -c rollup.config.js",
+    "build:watch": "rollup -c rollup.config.js --watch",
+    "examples": "deno run --import-map ./examples/server/deno-importmap.json --allow-net --allow-read --watch ./examples/server/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/growing-web/web-router.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "aui",
+  "bugs": {
+    "url": "https://github.com/growing-web/web-router/issues"
+  },
+  "homepage": "https://github.com/growing-web/web-router#readme",
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.16.0",
+    "@jsenv/importmap-node-module": "^5.1.3",
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@rollup/plugin-replace": "^3.0.0",
+    "babel-loader": "^8.2.3",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.4.1",
+    "rollup": "^2.50.5",
+    "rollup-plugin-includepaths": "^0.2.4",
+    "rollup-plugin-minify-html-literals": "^1.2.6",
+    "rollup-plugin-terser": "^7.0.2"
+  },
+  "dependencies": {
+    "@worker-tools/html": "^2.0.0-pre.13",
+    "history": "^5.2.0",
+    "lodash-es": "^4.17.21",
+    "@jspm/import-map": "^1.0.4"
+  }
+}
